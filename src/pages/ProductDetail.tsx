@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { useCart } from '@/context/CartContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BackButton from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -26,6 +26,9 @@ const ProductDetail: React.FC = () => {
         <Navbar onSearch={(query) => navigate(`/products?search=${encodeURIComponent(query)}`)} />
         <main className="flex-grow pt-24 pb-16">
           <div className="container mx-auto px-4 py-16 text-center">
+            <div className="mb-6">
+              <BackButton />
+            </div>
             <h1 className="text-3xl font-bold text-mediease-900 mb-4">Product Not Found</h1>
             <p className="text-gray-600 mb-8">The product you are looking for might have been removed or is temporarily unavailable.</p>
             <Button 
@@ -60,13 +63,7 @@ const ProductDetail: React.FC = () => {
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="mb-6">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(-1)}
-              className="text-mediease-600 hover:text-mediease-700"
-            >
-              &larr; Back
-            </Button>
+            <BackButton />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -76,7 +73,7 @@ const ProductDetail: React.FC = () => {
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="max-h-full object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
             </div>

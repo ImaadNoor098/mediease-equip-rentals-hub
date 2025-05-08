@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BackButton from '@/components/BackButton';
 import ProductGrid from '@/components/ProductGrid';
 import CategoryFilter from '@/components/CategoryFilter';
 import { Product } from '@/types';
@@ -89,6 +89,10 @@ const ProductsPage: React.FC = () => {
       <Navbar onSearch={handleSearchChange} />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4">
+          <div className="mb-4">
+            <BackButton />
+          </div>
+          
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-mediease-900">Healthcare Equipment</h1>
             <p className="text-gray-600 mt-2">Browse our collection of quality medical equipment for rent or purchase.</p>
