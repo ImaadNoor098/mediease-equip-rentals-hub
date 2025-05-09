@@ -65,7 +65,7 @@ const Hero: React.FC = () => {
               <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 rounded-full opacity-30"></div>
               <div className="relative z-10 bg-white rounded-lg shadow-xl p-4 md:p-6">
                 <div className="aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
-                  <Carousel className="w-full h-full" opts={{ loop: true, duration: 10, delay: 2000 }}>
+                  <Carousel className="w-full h-full" opts={{ loop: true, duration: 10 }}>
                     <CarouselContent>
                       {medicalImages.map((src, index) => (
                         <CarouselItem key={index}>
