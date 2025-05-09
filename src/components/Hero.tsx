@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 const medicalImages = [
   "/medical-equipment-1.jpg",
@@ -18,6 +19,10 @@ const medicalImages = [
 ];
 
 const Hero: React.FC = () => {
+  const autoplayPlugin = React.useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: false })
+  );
+
   return (
     <div className="relative bg-medieaze-50 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,13 +69,17 @@ const Hero: React.FC = () => {
               <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 rounded-full opacity-50"></div>
               <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 rounded-full opacity-30"></div>
               <div className="relative z-10 bg-white rounded-lg shadow-xl p-4 md:p-6">
-                <div className="aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
-                  <Carousel className="w-full h-full" opts={{ loop: true, duration: 10 }}>
+                <div className="aspect-square bg-gray-100 rounded-md overflow-hidden">
+                  <Carousel 
+                    className="w-full h-full" 
+                    opts={{ loop: true, duration: 10 }}
+                    plugins={[autoplayPlugin.current]}
+                  >
                     <CarouselContent>
                       {medicalImages.map((src, index) => (
                         <CarouselItem key={index}>
                           <div className="h-full w-full p-1">
-                            <div className="flex aspect-[4/3] items-center justify-center p-2 h-full w-full">
+                            <div className="flex aspect-square items-center justify-center p-2 h-full w-full">
                               <img 
                                 src={src} 
                                 alt={`Medical Equipment ${index + 1}`} 
