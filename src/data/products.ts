@@ -47,7 +47,7 @@ export const products: Product[] = [
     featured: true
   },
   {
-    id: "6",
+    id: "5",
     name: "Nebulizer",
     description: "Compact nebulizer system for medication delivery. Effective treatment for asthma and other respiratory conditions.",
     category: "Respiratory",
@@ -58,7 +58,7 @@ export const products: Product[] = [
     featured: false
   },
   {
-    id: "7",
+    id: "6",
     name: "Walker with Wheels",
     description: "Folding walker with front wheels for increased mobility. Includes ergonomic hand grips and adjustable height.",
     category: "Mobility",
@@ -69,18 +69,18 @@ export const products: Product[] = [
     featured: true
   },
   {
-    id: "8",
+    id: "7",
     name: "Blood Pressure Monitor",
     description: "Digital blood pressure monitor with large display. Accurate readings and memory storage for multiple users.",
     category: "Monitoring",
-    image: "/products/blood-pressure-monitor.jpg",
+    image: "/products/blood-pressure-meter.jpg",
     rentPrice: 700,
     buyPrice: 4500,
     available: true,
     featured: false
   },
   {
-    id: "9",
+    id: "8",
     name: "Shower Chair",
     description: "Height-adjustable shower chair with non-slip feet. Provides safety and comfort during bathing.",
     category: "Bathroom",
@@ -91,7 +91,7 @@ export const products: Product[] = [
     featured: false
   },
   {
-    id: "10",
+    id: "9",
     name: "Knee Scooter",
     description: "Steerable knee walker for foot or ankle injuries. Alternative to crutches with better mobility and comfort.",
     category: "Mobility",
@@ -102,7 +102,7 @@ export const products: Product[] = [
     featured: false
   },
   {
-    id: "11",
+    id: "10",
     name: "Commode Chair",
     description: "Portable bedside commode with removable bucket. Can also be used as a toilet safety frame.",
     category: "Bathroom",
@@ -113,7 +113,7 @@ export const products: Product[] = [
     featured: false
   },
   {
-    id: "12",
+    id: "11",
     name: "Infusion Pump",
     description: "Programmable infusion pump for controlled medication delivery. Suitable for home care settings.",
     category: "Medical",
