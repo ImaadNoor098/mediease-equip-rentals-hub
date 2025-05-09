@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
+import { ArrowRight } from 'lucide-react';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
@@ -22,10 +22,17 @@ const Cart: React.FC = () => {
   };
   
   const handleCheckout = () => {
-    toast({
-      title: "Checkout Process",
-      description: "This would normally proceed to checkout. Feature to be implemented fully."
-    });
+    if (cart.items.length === 0) {
+      toast({
+        title: "Empty Cart",
+        description: "Your cart is empty. Please add items before proceeding to checkout.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Navigate to payment page
+    navigate('/payment');
   };
   
   const handleSearch = (query: string) => {
@@ -183,9 +190,9 @@ const Cart: React.FC = () => {
                   
                   <Button 
                     onClick={handleCheckout}
-                    className="w-full bg-mediease-600 hover:bg-mediease-700 py-6 text-lg"
+                    className="w-full bg-mediease-600 hover:bg-mediease-700 py-6 text-lg flex items-center justify-center"
                   >
-                    Proceed to Checkout
+                    Proceed to Checkout <ArrowRight className="ml-2" />
                   </Button>
                 </div>
               </div>
