@@ -7,7 +7,7 @@ export const products: Product[] = [
     name: "Oxygen Concentrator",
     description: "Portable oxygen concentrator for home and travel use. Provides continuous flow of oxygen for patients with respiratory conditions.",
     category: "Respiratory",
-    image: "/products/oxygen-concentrator.jpg",
+    image: "/products/oxygen-concentratr.jpg",
     rentPrice: 3500,
     buyPrice: 45000,
     available: true,
