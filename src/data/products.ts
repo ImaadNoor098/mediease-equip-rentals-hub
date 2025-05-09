@@ -1,3 +1,4 @@
+
 import { Product } from "@/types";
 
 export const products: Product[] = [
@@ -6,7 +7,7 @@ export const products: Product[] = [
     name: "Oxygen Concentrator",
     description: "Portable oxygen concentrator for home and travel use. Provides continuous flow of oxygen for patients with respiratory conditions.",
     category: "Respiratory",
-    image: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=1979&auto=format&fit=crop",
+    image: "/products/oxygen-concentrator.jpg",
     rentPrice: 3500,
     buyPrice: 45000,
     available: true,
@@ -17,7 +18,7 @@ export const products: Product[] = [
     name: "Hospital Bed",
     description: "Fully adjustable electric hospital bed with remote control. Includes adjustable height, back, and leg positions for patient comfort.",
     category: "Furniture",
-    image: "https://images.unsplash.com/photo-1595913333314-2e80fdc9b69c?q=80&w=2079&auto=format&fit=crop",
+    image: "/products/hospital-bed.jpg",
     rentPrice: 4500,
     buyPrice: 68000,
     available: true,
@@ -28,7 +29,7 @@ export const products: Product[] = [
     name: "Wheelchair",
     description: "Lightweight folding wheelchair with padded armrests and adjustable footrests. Easy to transport and store.",
     category: "Mobility",
-    image: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2070&auto=format&fit=crop",
+    image: "/products/wheelchair.jpg",
     rentPrice: 1200,
     buyPrice: 15000,
     available: true,
@@ -39,7 +40,7 @@ export const products: Product[] = [
     name: "CPAP Machine",
     description: "Continuous Positive Airway Pressure machine for sleep apnea treatment. Quiet operation with humidity control.",
     category: "Respiratory",
-    image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=2080&auto=format&fit=crop",
+    image: "/products/cpap-machine.jpg",
     rentPrice: 2500,
     buyPrice: 32000,
     available: true,

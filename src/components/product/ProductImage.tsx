@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ProductImageProps {
   image: string;
@@ -9,11 +10,11 @@ interface ProductImageProps {
 const ProductImage: React.FC<ProductImageProps> = ({ image, name }) => {
   return (
     <div className="bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm p-6">
-      <div className="aspect-square bg-gray-50 rounded-md flex items-center justify-center">
+      <AspectRatio ratio={1} className="bg-gray-50 rounded-md">
         <img
           src={image}
           alt={name}
-          className="max-h-full max-w-full object-contain"
+          className="h-full w-full object-contain"
           loading="lazy"
           onError={(e) => {
             // If the image fails to load, replace with a placeholder
@@ -21,7 +22,7 @@ const ProductImage: React.FC<ProductImageProps> = ({ image, name }) => {
             target.src = "/placeholder.svg";
           }}
         />
-      </div>
+      </AspectRatio>
     </div>
   );
 };
