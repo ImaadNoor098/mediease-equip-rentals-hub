@@ -14,6 +14,12 @@ const ProductImage: React.FC<ProductImageProps> = ({ image, name }) => {
           src={image}
           alt={name}
           className="max-h-full max-w-full object-contain"
+          loading="lazy"
+          onError={(e) => {
+            // If the image fails to load, replace with a placeholder
+            const target = e.target as HTMLImageElement;
+            target.src = "/placeholder.svg";
+          }}
         />
       </div>
     </div>

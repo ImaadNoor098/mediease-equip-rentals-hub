@@ -26,23 +26,23 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-mediease-600">
-              Medi<span className="text-mediease-800">Ease</span>
+            <span className="text-2xl font-bold text-medieaze-600">
+              Medi<span className="text-medieaze-800">Eaze</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-600 hover:text-mediease-600 transition-colors">
+            <Link to="/" className="text-gray-600 hover:text-medieaze-600 transition-colors">
               Home
             </Link>
-            <Link to="/products" className="text-gray-600 hover:text-mediease-600 transition-colors">
+            <Link to="/products" className="text-gray-600 hover:text-medieaze-600 transition-colors">
               Products
             </Link>
-            <Link to="/about" className="text-gray-600 hover:text-mediease-600 transition-colors">
+            <Link to="/about" className="text-gray-600 hover:text-medieaze-600 transition-colors">
               About Us
             </Link>
-            <Link to="/contact" className="text-gray-600 hover:text-mediease-600 transition-colors">
+            <Link to="/contact" className="text-gray-600 hover:text-medieaze-600 transition-colors">
               Contact
             </Link>
           </div>
@@ -55,13 +55,13 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 mr-2 focus:border-mediease-500 focus:ring-mediease-500"
+                className="w-64 mr-2 focus:border-medieaze-500 focus:ring-medieaze-500"
               />
               <Button
                 type="submit"
                 variant="outline"
                 size="icon"
-                className="h-10 w-10 text-mediease-600"
+                className="h-10 w-10 text-medieaze-600"
               >
                 <SearchIcon className="h-4 w-4" />
               </Button>
@@ -73,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
             <Link to="/cart" className="relative p-2">
               <ShoppingCart className="h-6 w-6 text-gray-600" />
               {cart.totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-mediease-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
+                <span className="absolute -top-1 -right-1 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
                   {cart.totalItems}
                 </span>
               )}
@@ -95,28 +95,28 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
             <div className="flex flex-col space-y-4">
               <Link
                 to="/"
-                className="text-gray-600 hover:text-mediease-600 transition-colors"
+                className="text-gray-600 hover:text-medieaze-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link
                 to="/products"
-                className="text-gray-600 hover:text-mediease-600 transition-colors"
+                className="text-gray-600 hover:text-medieaze-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Products
               </Link>
               <Link
                 to="/about"
-                className="text-gray-600 hover:text-mediease-600 transition-colors"
+                className="text-gray-600 hover:text-medieaze-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link
                 to="/contact"
-                className="text-gray-600 hover:text-mediease-600 transition-colors"
+                className="text-gray-600 hover:text-medieaze-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -135,7 +135,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
                   type="submit"
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10 text-mediease-600"
+                  className="h-10 w-10 text-medieaze-600"
                 >
                   <SearchIcon className="h-4 w-4" />
                 </Button>

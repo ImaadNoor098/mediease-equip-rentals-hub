@@ -12,11 +12,11 @@ const ProductNotFound: React.FC = () => {
       <div className="mb-6">
         <BackButton />
       </div>
-      <h1 className="text-3xl font-bold text-mediease-900 mb-4">Product Not Found</h1>
+      <h1 className="text-3xl font-bold text-medieaze-900 mb-4">Product Not Found</h1>
       <p className="text-gray-600 mb-8">The product you are looking for might have been removed or is temporarily unavailable.</p>
       <Button 
         onClick={() => navigate('/products')}
-        className="bg-mediease-600 hover:bg-mediease-700"
+        className="bg-medieaze-600 hover:bg-medieaze-700"
       >
         Browse All Products
       </Button>

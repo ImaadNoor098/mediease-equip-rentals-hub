@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
@@ -88,7 +87,7 @@ const ProductDetail: React.FC = () => {
               <Button 
                 onClick={handleAddToCart}
                 disabled={!product.available}
-                className="w-full bg-mediease-600 hover:bg-mediease-700 py-6 text-lg"
+                className="w-full bg-medieaze-600 hover:bg-medieaze-700 py-6 text-lg"
               >
                 {product.available ? 'Add to Cart' : 'Out of Stock'}
               </Button>
