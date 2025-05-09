@@ -62,7 +62,7 @@ export const products: Product[] = [
     name: "Nebulizer",
     description: "Compact nebulizer system for medication delivery. Effective treatment for asthma and other respiratory conditions.",
     category: "Respiratory",
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2070&auto=format&fit=crop",
+    image: "/products/nebulizer.jpg",
     rentPrice: 800,
     buyPrice: 8500,
     available: true,
