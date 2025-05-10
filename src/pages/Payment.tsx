@@ -7,7 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { Cash, CreditCard, Check } from "lucide-react";
+import { Banknote, CreditCard, Check } from "lucide-react";
 import { toast } from '@/hooks/use-toast';
 
 const Payment: React.FC = () => {
@@ -123,7 +123,7 @@ const Payment: React.FC = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar onSearch={() => {}} />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
@@ -192,7 +192,7 @@ const Payment: React.FC = () => {
                   <RadioGroupItem value="cod" id="cod" />
                   <Label htmlFor="cod" className="flex-1 cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <Cash className="h-5 w-5 text-mediease-600" />
+                      <Banknote className="h-5 w-5 text-mediease-600" />
                       <div>
                         <p className="font-medium">Cash on Delivery</p>
                         <p className="text-sm text-gray-500">Pay when your equipment is delivered</p>
