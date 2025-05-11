@@ -51,12 +51,20 @@ const Confetti: React.FC = () => {
             top: -10px;
             border-radius: 0%;
             animation: fall linear forwards;
+            z-index: 1001;
           }
           
           @keyframes fall {
             to {
               transform: translateY(100vh) rotate(720deg);
               opacity: 0;
+            }
+          }
+          
+          /* Make confetti more visible in dark mode */
+          @media (prefers-color-scheme: dark) {
+            .confetti {
+              filter: brightness(1.5) contrast(1.2);
             }
           }
         `}

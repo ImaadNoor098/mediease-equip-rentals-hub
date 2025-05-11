@@ -10,6 +10,7 @@ import {
   CarouselNext,
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const medicalImages = [
   "/medical-equipment-1.jpg",
@@ -22,36 +23,38 @@ const Hero: React.FC = () => {
   const autoplayPlugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
+  
+  const isMobile = useIsMobile();
 
   return (
-    <div className="relative bg-medieaze-50 overflow-hidden">
+    <div className="relative bg-medieaze-50 dark:bg-gray-900 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-12 md:py-24">
+        <div className="py-8 md:py-16 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold text-medieaze-900 leading-tight">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-medieaze-900 dark:text-white leading-tight">
                 Quality Healthcare Equipment at Affordable Prices
               </h1>
-              <p className="mt-6 text-lg text-gray-600 max-w-lg">
+              <p className="mt-4 md:mt-6 text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-lg">
                 MediEaze makes healthcare accessible by offering premium medical equipment for rent or purchase. 
                 Save money while getting the care you deserve.
               </p>
-              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4">
                 <Link to="/products">
-                  <Button className="bg-medieaze-600 hover:bg-medieaze-700 text-white px-8 py-2.5 text-lg">
+                  <Button className="bg-medieaze-600 hover:bg-medieaze-700 text-white px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
                     Browse Products
                   </Button>
                 </Link>
                 <Link to="/contact">
-                  <Button variant="outline" className="border-medieaze-600 text-medieaze-600 hover:bg-medieaze-50 px-8 py-2.5 text-lg">
+                  <Button variant="outline" className="border-medieaze-600 text-medieaze-600 dark:text-medieaze-400 hover:bg-medieaze-50 dark:hover:bg-medieaze-900/20 px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
                     Contact Us
                   </Button>
                 </Link>
               </div>
-              <div className="mt-8 flex items-center gap-4">
+              <div className="mt-6 md:mt-8 flex items-center gap-4">
                 <div className="flex -space-x-2">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white overflow-hidden">
+                    <div key={i} className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white dark:border-gray-800 overflow-hidden">
                       <img 
                         src={`/customer-${i}.jpg`} 
                         alt={`Customer ${i}`}
@@ -60,16 +63,16 @@ const Hero: React.FC = () => {
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
                   <span className="font-semibold">500+</span> satisfied customers
                 </p>
               </div>
             </div>
-            <div className="relative h-64 md:h-auto">
-              <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 rounded-full opacity-50"></div>
-              <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 rounded-full opacity-30"></div>
-              <div className="relative z-10 bg-white rounded-lg shadow-xl p-4 md:p-6">
-                <div className="aspect-square bg-gray-100 rounded-md overflow-hidden">
+            <div className="relative h-64 md:h-auto pt-6 md:pt-0">
+              <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-50"></div>
+              <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-30"></div>
+              <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
+                <div className={`rounded-md overflow-hidden carousel-container ${isMobile ? 'h-48' : 'aspect-square'}`}>
                   <Carousel 
                     className="w-full h-full" 
                     opts={{ loop: true, duration: 10 }}
@@ -79,30 +82,30 @@ const Hero: React.FC = () => {
                       {medicalImages.map((src, index) => (
                         <CarouselItem key={index}>
                           <div className="h-full w-full p-1">
-                            <div className="flex aspect-square items-center justify-center p-2 h-full w-full">
+                            <div className="flex items-center justify-center p-2 h-full w-full">
                               <img 
                                 src={src} 
                                 alt={`Medical Equipment ${index + 1}`} 
-                                className="h-full w-full object-cover rounded-md"
+                                className="carousel-image rounded-md"
                               />
                             </div>
                           </div>
                         </CarouselItem>
                       ))}
                     </CarouselContent>
-                    <CarouselPrevious className="left-2 bg-white" />
-                    <CarouselNext className="right-2 bg-white" />
+                    <CarouselPrevious className="left-2 bg-white dark:bg-gray-700 dark:text-white" />
+                    <CarouselNext className="right-2 bg-white dark:bg-gray-700 dark:text-white" />
                   </Carousel>
                 </div>
                 <div className="mt-5 grid grid-cols-3 gap-2">
-                  <div className="bg-medieaze-50 p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 text-sm font-medium">Oxygen</span>
+                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
+                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Oxygen</span>
                   </div>
-                  <div className="bg-medieaze-50 p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 text-sm font-medium">Mobility</span>
+                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
+                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Mobility</span>
                   </div>
-                  <div className="bg-medieaze-50 p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 text-sm font-medium">Beds</span>
+                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
+                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Beds</span>
                   </div>
                 </div>
               </div>

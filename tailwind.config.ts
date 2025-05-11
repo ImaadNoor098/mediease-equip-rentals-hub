@@ -98,11 +98,22 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'cart-bounce': {
+					'0%, 100%': { transform: 'scale(1)' },
+					'50%': { transform: 'scale(1.2)' }
+				},
+				'item-added': {
+					'0%': { transform: 'translateY(20px)', opacity: '0' },
+					'70%': { transform: 'translateY(-5px)', opacity: '0.7' },
+					'100%': { transform: 'translateY(0)', opacity: '0' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'cart-bounce': 'cart-bounce 0.5s ease-in-out',
+				'item-added': 'item-added 0.8s ease-out'
 			}
 		}
 	},

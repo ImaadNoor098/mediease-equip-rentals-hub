@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { useCart } from '@/context/CartContext';
@@ -12,11 +13,14 @@ import ProductHeader from '@/components/product/ProductHeader';
 import PurchaseOptions from '@/components/product/PurchaseOptions';
 import QuantitySelector from '@/components/product/QuantitySelector';
 import ProductDetailTabs from '@/components/product/ProductDetailTabs';
+import { toast } from '@/hooks/use-toast';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addItem } = useCart();
+  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const productImageRef = useRef<HTMLDivElement>(null);
   
   const product = getProductById(id || '');
   const [purchaseType, setPurchaseType] = useState<'rent' | 'buy'>('rent');
@@ -45,6 +49,20 @@ const ProductDetail: React.FC = () => {
       quantity,
       purchaseType
     });
+
+    // Start animation
+    if (window.animateProductToCart && productImageRef.current) {
+      const rect = productImageRef.current.getBoundingClientRect();
+      window.animateProductToCart(
+        product.image, 
+        { x: rect.left + rect.width/2, y: rect.top + rect.height/2 }
+      );
+    }
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+    });
   };
   
   return (
@@ -58,7 +76,9 @@ const ProductDetail: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {/* Product Image */}
-            <ProductImage image={product.image} name={product.name} />
+            <div ref={productImageRef}>
+              <ProductImage image={product.image} name={product.name} />
+            </div>
             
             {/* Product Details */}
             <div>
@@ -85,9 +105,10 @@ const ProductDetail: React.FC = () => {
               
               {/* Add to Cart Button */}
               <Button 
+                ref={addToCartButtonRef}
                 onClick={handleAddToCart}
                 disabled={!product.available}
-                className="w-full bg-medieaze-600 hover:bg-medieaze-700 py-6 text-lg"
+                className="w-full bg-medieaze-600 hover:bg-medieaze-700 py-6 text-lg text-white"
               >
                 {product.available ? 'Add to Cart' : 'Out of Stock'}
               </Button>
