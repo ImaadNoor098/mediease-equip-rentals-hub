@@ -33,42 +33,40 @@ const Confetti: React.FC = () => {
           />
         ))}
       </div>
-      <style>
-        {`
-          .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1000;
-            overflow: hidden;
+      <style jsx="true">{`
+        .confetti-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 1000;
+          overflow: hidden;
+        }
+        
+        .confetti {
+          position: absolute;
+          top: -10px;
+          border-radius: 0%;
+          animation: fall linear forwards;
+          z-index: 1001;
+        }
+        
+        @keyframes fall {
+          to {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
           }
-          
+        }
+        
+        /* Make confetti more visible in dark mode */
+        @media (prefers-color-scheme: dark) {
           .confetti {
-            position: absolute;
-            top: -10px;
-            border-radius: 0%;
-            animation: fall linear forwards;
-            z-index: 1001;
+            filter: brightness(1.5) contrast(1.2);
           }
-          
-          @keyframes fall {
-            to {
-              transform: translateY(100vh) rotate(720deg);
-              opacity: 0;
-            }
-          }
-          
-          /* Make confetti more visible in dark mode */
-          @media (prefers-color-scheme: dark) {
-            .confetti {
-              filter: brightness(1.5) contrast(1.2);
-            }
-          }
-        `}
-      </style>
+        }
+      `}</style>
     </>
   );
 };

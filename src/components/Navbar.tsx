@@ -131,18 +131,20 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
             </form>
           </div>
 
-          {/* Cart Icon */}
+          {/* Cart Icon - FIX: Using a div with ref instead of trying to apply ref to Link */}
           <div className="flex items-center">
-            <Link to="/cart" className="relative p-2" ref={cartButtonRef}>
-              <div className={`${isCartAnimating ? 'animate-cart-bounce' : ''} transition-all`}>
-                <ShoppingCart className="h-6 w-6 text-foreground" />
-                {cart.totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
-                    {cart.totalItems}
-                  </span>
-                )}
-              </div>
-            </Link>
+            <div className="relative p-2" ref={cartButtonRef}>
+              <Link to="/cart">
+                <div className={`${isCartAnimating ? 'animate-cart-bounce' : ''} transition-all`}>
+                  <ShoppingCart className="h-6 w-6 text-foreground" />
+                  {cart.totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
+                      {cart.totalItems}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </div>
 
             {/* Mobile Menu Button */}
             <button

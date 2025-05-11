@@ -47,11 +47,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg h-full flex flex-col product-card bg-card text-card-foreground">
       <Link to={`/product/${product.id}`} className="block h-full">
-        <div className="aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <div className="aspect-square overflow-hidden bg-gray-50 dark:bg-gray-800">
           <img 
             src={product.image} 
             alt={product.name} 
-            className="h-full w-full object-cover transition-transform hover:scale-105" 
+            className="h-full w-full object-contain transition-transform hover:scale-105" 
           />
         </div>
         <CardContent className="p-4 flex-grow">
@@ -78,6 +78,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             variant="secondary" 
             className="flex-none w-10 bg-secondary text-secondary-foreground"
             onClick={handleQuickAddToCart}
+            aria-label="Add to cart"
           >
             +
           </Button>

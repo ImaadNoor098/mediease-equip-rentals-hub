@@ -72,7 +72,7 @@ const Hero: React.FC = () => {
               <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-50"></div>
               <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-30"></div>
               <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
-                <div className={`rounded-md overflow-hidden carousel-container ${isMobile ? 'h-48' : 'aspect-square'}`}>
+                <div className={`rounded-md overflow-hidden ${isMobile ? 'h-64' : 'h-80'} flex items-center justify-center`}>
                   <Carousel 
                     className="w-full h-full" 
                     opts={{ loop: true, duration: 10 }}
@@ -86,7 +86,7 @@ const Hero: React.FC = () => {
                               <img 
                                 src={src} 
                                 alt={`Medical Equipment ${index + 1}`} 
-                                className="carousel-image rounded-md"
+                                className="max-h-full max-w-full object-contain rounded-md"
                               />
                             </div>
                           </div>
@@ -107,6 +107,11 @@ const Hero: React.FC = () => {
                   <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
                     <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Beds</span>
                   </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <p className="text-medieaze-700 dark:text-medieaze-400 font-medium italic text-sm md:text-base border-t border-b border-medieaze-100 dark:border-medieaze-800/30 py-2">
+                    "Your Health, Our Priority — Your Hygiene, Our Promise"
+                  </p>
                 </div>
               </div>
             </div>

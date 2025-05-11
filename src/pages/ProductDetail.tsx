@@ -81,7 +81,7 @@ const ProductDetail: React.FC = () => {
             </div>
             
             {/* Product Details */}
-            <div>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
               <ProductHeader 
                 name={product.name} 
                 category={product.category} 
@@ -103,12 +103,12 @@ const ProductDetail: React.FC = () => {
                 onChange={setQuantity}
               />
               
-              {/* Add to Cart Button */}
+              {/* Add to Cart Button - With higher contrast and visibility */}
               <Button 
                 ref={addToCartButtonRef}
                 onClick={handleAddToCart}
                 disabled={!product.available}
-                className="w-full bg-medieaze-600 hover:bg-medieaze-700 py-6 text-lg text-white"
+                className="w-full bg-medieaze-600 hover:bg-medieaze-700 dark:hover:bg-medieaze-500 py-6 text-lg text-white shadow-md"
               >
                 {product.available ? 'Add to Cart' : 'Out of Stock'}
               </Button>
@@ -116,7 +116,9 @@ const ProductDetail: React.FC = () => {
           </div>
           
           {/* Additional Information Tabs */}
-          <ProductDetailTabs category={product.category} />
+          <div className="mt-12">
+            <ProductDetailTabs category={product.category} />
+          </div>
         </div>
       </main>
       <Footer />
