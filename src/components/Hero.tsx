@@ -41,7 +41,7 @@ const Hero: React.FC = () => {
               </p>
               <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4">
                 <Link to="/products">
-                  <Button className="bg-medieaze-600 hover:bg-mediease-700 text-white px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
+                  <Button className="bg-medieaze-600 hover:bg-medieaze-700 text-white px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
                     Browse Products
                   </Button>
                 </Link>
@@ -51,7 +51,8 @@ const Hero: React.FC = () => {
                   </Button>
                 </Link>
               </div>
-              <div className="mt-6 md:mt-8 flex items-center gap-4">
+              
+              <div className="mt-6 md:mt-8 flex items-center gap-6">
                 <div className="flex -space-x-2">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white dark:border-gray-800 overflow-hidden">
@@ -72,7 +73,7 @@ const Hero: React.FC = () => {
               <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-50"></div>
               <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-30"></div>
               <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
-                <div className={`rounded-md overflow-hidden flex items-center justify-center ${isMobile ? 'h-56' : 'h-64'}`}>
+                <div className="rounded-md overflow-hidden flex items-center justify-center aspect-square">
                   <Carousel 
                     className="w-full h-full" 
                     opts={{ loop: true, duration: 10 }}
@@ -95,19 +96,8 @@ const Hero: React.FC = () => {
                     <CarouselNext className="right-2 bg-white dark:bg-gray-700 dark:text-white" />
                   </Carousel>
                 </div>
-                <div className="mt-5 grid grid-cols-3 gap-2">
-                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Oxygen</span>
-                  </div>
-                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Mobility</span>
-                  </div>
-                  <div className="bg-medieaze-50 dark:bg-medieaze-900/50 p-2 md:p-3 rounded-md flex items-center justify-center">
-                    <span className="text-medieaze-700 dark:text-medieaze-300 text-xs md:text-sm font-medium">Beds</span>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <p className="font-medium italic text-sm md:text-base py-3 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
+                <div className="mt-5">
+                  <p className="font-medium italic text-center text-sm md:text-base py-4 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
                     "Your Health, Our Priority — Your Hygiene, Our Promise"
                   </p>
                 </div>
