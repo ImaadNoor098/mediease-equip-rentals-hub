@@ -41,7 +41,7 @@ const Hero: React.FC = () => {
               </p>
               <div className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-4">
                 <Link to="/products">
-                  <Button className="bg-medieaze-600 hover:bg-medieaze-700 text-white px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
+                  <Button className="bg-medieaze-600 hover:bg-mediease-700 text-white px-6 md:px-8 py-2 md:py-2.5 text-base md:text-lg w-full sm:w-auto">
                     Browse Products
                   </Button>
                 </Link>
@@ -72,23 +72,21 @@ const Hero: React.FC = () => {
               <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-50"></div>
               <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-30"></div>
               <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
-                <div className={`rounded-md overflow-hidden ${isMobile ? 'h-64' : 'h-80'} flex items-center justify-center`}>
+                <div className={`rounded-md overflow-hidden flex items-center justify-center ${isMobile ? 'h-56' : 'h-64'}`}>
                   <Carousel 
                     className="w-full h-full" 
                     opts={{ loop: true, duration: 10 }}
                     plugins={[autoplayPlugin.current]}
                   >
-                    <CarouselContent>
+                    <CarouselContent className="h-full">
                       {medicalImages.map((src, index) => (
-                        <CarouselItem key={index}>
-                          <div className="h-full w-full p-1">
-                            <div className="flex items-center justify-center p-2 h-full w-full">
-                              <img 
-                                src={src} 
-                                alt={`Medical Equipment ${index + 1}`} 
-                                className="max-h-full max-w-full object-contain rounded-md"
-                              />
-                            </div>
+                        <CarouselItem key={index} className="h-full">
+                          <div className="h-full w-full flex items-center justify-center p-1">
+                            <img 
+                              src={src} 
+                              alt={`Medical Equipment ${index + 1}`} 
+                              className="max-h-full max-w-full object-contain rounded-md"
+                            />
                           </div>
                         </CarouselItem>
                       ))}
@@ -109,7 +107,7 @@ const Hero: React.FC = () => {
                   </div>
                 </div>
                 <div className="mt-4 text-center">
-                  <p className="text-medieaze-700 dark:text-medieaze-400 font-medium italic text-sm md:text-base border-t border-b border-medieaze-100 dark:border-medieaze-800/30 py-2">
+                  <p className="font-medium italic text-sm md:text-base py-3 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
                     "Your Health, Our Priority — Your Hygiene, Our Promise"
                   </p>
                 </div>

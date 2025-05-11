@@ -103,12 +103,12 @@ const ProductDetail: React.FC = () => {
                 onChange={setQuantity}
               />
               
-              {/* Add to Cart Button - With higher contrast and visibility */}
+              {/* Add to Cart Button - With improved visibility */}
               <Button 
                 ref={addToCartButtonRef}
                 onClick={handleAddToCart}
                 disabled={!product.available}
-                className="w-full bg-medieaze-600 hover:bg-medieaze-700 dark:hover:bg-medieaze-500 py-6 text-lg text-white shadow-md"
+                className="w-full bg-mediease-600 hover:bg-mediease-700 dark:hover:bg-mediease-500 text-white font-bold py-6 text-lg shadow-md border-2 border-mediease-500 dark:border-mediease-400"
               >
                 {product.available ? 'Add to Cart' : 'Out of Stock'}
               </Button>

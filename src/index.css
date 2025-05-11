@@ -146,6 +146,14 @@
   .dark button.bg-medieaze-600 {
     @apply text-white hover:bg-mediease-500;
   }
+  
+  /* Styled fancy quote */
+  .fancy-quote {
+    @apply font-medium italic text-base py-3 px-4 rounded-md 
+           bg-gradient-to-r from-medieaze-100 via-white to-medieaze-100
+           dark:from-medieaze-900/60 dark:via-medieaze-800 dark:to-medieaze-900/60
+           border-l-4 border-r-4 border-medieaze-400 text-medieaze-800 dark:text-medieaze-200;
+  }
 }
 
 /* Make content readable in both themes */
