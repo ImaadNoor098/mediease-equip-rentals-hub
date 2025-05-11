@@ -33,7 +33,8 @@ const Confetti: React.FC = () => {
           />
         ))}
       </div>
-      <style jsx="true">{`
+      <style>
+        {`
         .confetti-container {
           position: fixed;
           top: 0;
@@ -66,7 +67,8 @@ const Confetti: React.FC = () => {
             filter: brightness(1.5) contrast(1.2);
           }
         }
-      `}</style>
+        `}
+      </style>
     </>
   );
 };

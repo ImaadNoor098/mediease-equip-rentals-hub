@@ -133,17 +133,19 @@
   }
 }
 
-/* Ensure buttons are visible in all themes */
-button.bg-medieaze-600 {
-  @apply text-white hover:bg-medieaze-700;
-}
+@layer components {
+  /* Ensure buttons are visible in all themes */
+  button.bg-medieaze-600 {
+    @apply text-white hover:bg-mediease-700;
+  }
 
-button.bg-medieaze-600:hover {
-  @apply bg-medieaze-700;
-}
+  button.bg-medieaze-600:hover {
+    @apply bg-mediease-700;
+  }
 
-.dark button.bg-medieaze-600 {
-  @apply text-white hover:bg-medieaze-500;
+  .dark button.bg-medieaze-600 {
+    @apply text-white hover:bg-mediease-500;
+  }
 }
 
 /* Make content readable in both themes */
