@@ -10,7 +10,7 @@ import {
   CarouselNext,
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
-import { useIsMobile } from '@/hooks/use-mobile';
+// Removed useIsMobile as it's not currently used for layout here
 
 const medicalImages = [
   "/medical-equipment-1.jpg",
@@ -24,13 +24,12 @@ const Hero: React.FC = () => {
     Autoplay({ delay: 3000, stopOnInteraction: false })
   );
   
-  const isMobile = useIsMobile();
-
   return (
     <div className="relative bg-medieaze-50 dark:bg-gray-900 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            {/* Text Content Column */}
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-medieaze-900 dark:text-white leading-tight">
                 Quality Healthcare Equipment at Affordable Prices
@@ -70,32 +69,39 @@ const Hero: React.FC = () => {
               </div>
             </div>
             
-            {/* Compact Slider Container */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-[300px] md:max-w-[350px] aspect-square bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3">
-                <Carousel 
-                  className="w-full h-full" 
-                  opts={{ loop: true, duration: 10 }}
-                  plugins={[autoplayPlugin.current]}
-                >
-                  <CarouselContent className="h-full">
-                    {medicalImages.map((src, index) => (
-                      <CarouselItem key={index} className="h-full">
-                        <div className="h-full w-full flex items-center justify-center p-1">
-                          <img 
-                            src={src} 
-                            alt={`Medical Equipment ${index + 1}`} 
-                            className="max-h-full max-w-full object-contain rounded-md"
-                          />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="left-1 bg-white dark:bg-gray-700 dark:text-white h-7 w-7" />
-                  <CarouselNext className="right-1 bg-white dark:bg-gray-700 dark:text-white h-7 w-7" />
-                </Carousel>
-                <div className="mt-4">
-                  <p className="font-medium italic text-center text-sm md:text-base py-2 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
+            {/* Image Slider Column - Reverted to previous structure */}
+            <div className="relative h-auto md:h-auto pt-6 md:pt-0 flex items-center justify-center lg:justify-end">
+              {/* Decorative circles - optional, can be removed if not desired */}
+              <div className="absolute -bottom-10 -right-10 w-56 h-56 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-30 transform translate-x-1/4 translate-y-1/4"></div>
+              <div className="absolute -top-10 -right-0 w-56 h-56 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-20  transform -translate-x-1/4 -translate-y-1/4"></div>
+              
+              <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3 md:p-4 w-full max-w-sm mx-auto">
+                <div className="rounded-md overflow-hidden flex items-center justify-center aspect-square">
+                  <Carousel 
+                    className="w-full h-full" 
+                    opts={{ loop: true, duration: 10 }}
+                    plugins={[autoplayPlugin.current]}
+                  >
+                    <CarouselContent className="h-full">
+                      {medicalImages.map((src, index) => (
+                        <CarouselItem key={index} className="h-full">
+                          <div className="h-full w-full flex items-center justify-center p-1">
+                            <img 
+                              src={src} 
+                              alt={`Medical Equipment ${index + 1}`} 
+                              className="max-h-full max-w-full object-contain rounded-md"
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    {/* Using smaller buttons for a more compact look */}
+                    <CarouselPrevious className="left-1 bg-white/80 hover:bg-white dark:bg-gray-700/80 dark:hover:bg-gray-700 dark:text-white h-7 w-7" />
+                    <CarouselNext className="right-1 bg-white/80 hover:bg-white dark:bg-gray-700/80 dark:hover:bg-gray-700 dark:text-white h-7 w-7" />
+                  </Carousel>
+                </div>
+                <div className="mt-3 md:mt-4">
+                  <p className="font-medium italic text-center text-xs md:text-sm py-2 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-2 border-r-2 border-medieaze-400 dark:border-medieaze-400">
                     "Your Health, Our Priority"
                   </p>
                 </div>
