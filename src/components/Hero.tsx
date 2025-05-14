@@ -29,7 +29,7 @@ const Hero: React.FC = () => {
   return (
     <div className="relative bg-medieaze-50 dark:bg-gray-900 overflow-hidden">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-8 md:py-16 lg:py-24">
+        <div className="py-8 md:py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-medieaze-900 dark:text-white leading-tight">
@@ -69,36 +69,34 @@ const Hero: React.FC = () => {
                 </p>
               </div>
             </div>
-            <div className="relative h-64 md:h-auto pt-6 md:pt-0">
-              <div className="absolute -bottom-16 -right-16 w-72 h-72 bg-medieaze-200 dark:bg-medieaze-800/30 rounded-full opacity-50"></div>
-              <div className="absolute -top-16 -right-16 w-72 h-72 bg-medieaze-300 dark:bg-medieaze-700/30 rounded-full opacity-30"></div>
-              <div className="relative z-10 bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6">
-                <div className="rounded-md overflow-hidden flex items-center justify-center aspect-square">
-                  <Carousel 
-                    className="w-full h-full" 
-                    opts={{ loop: true, duration: 10 }}
-                    plugins={[autoplayPlugin.current]}
-                  >
-                    <CarouselContent className="h-full">
-                      {medicalImages.map((src, index) => (
-                        <CarouselItem key={index} className="h-full">
-                          <div className="h-full w-full flex items-center justify-center p-1">
-                            <img 
-                              src={src} 
-                              alt={`Medical Equipment ${index + 1}`} 
-                              className="max-h-full max-w-full object-contain rounded-md"
-                            />
-                          </div>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-2 bg-white dark:bg-gray-700 dark:text-white" />
-                    <CarouselNext className="right-2 bg-white dark:bg-gray-700 dark:text-white" />
-                  </Carousel>
-                </div>
-                <div className="mt-5">
-                  <p className="font-medium italic text-center text-sm md:text-base py-4 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
-                    "Your Health, Our Priority — Your Hygiene, Our Promise"
+            
+            {/* Compact Slider Container */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[300px] md:max-w-[350px] aspect-square bg-white dark:bg-gray-800 rounded-lg shadow-xl p-3">
+                <Carousel 
+                  className="w-full h-full" 
+                  opts={{ loop: true, duration: 10 }}
+                  plugins={[autoplayPlugin.current]}
+                >
+                  <CarouselContent className="h-full">
+                    {medicalImages.map((src, index) => (
+                      <CarouselItem key={index} className="h-full">
+                        <div className="h-full w-full flex items-center justify-center p-1">
+                          <img 
+                            src={src} 
+                            alt={`Medical Equipment ${index + 1}`} 
+                            className="max-h-full max-w-full object-contain rounded-md"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-1 bg-white dark:bg-gray-700 dark:text-white h-7 w-7" />
+                  <CarouselNext className="right-1 bg-white dark:bg-gray-700 dark:text-white h-7 w-7" />
+                </Carousel>
+                <div className="mt-4">
+                  <p className="font-medium italic text-center text-sm md:text-base py-2 px-2 bg-gradient-to-r from-medieaze-100 via-medieaze-50 to-medieaze-100 dark:from-medieaze-900/60 dark:via-medieaze-800/60 dark:to-medieaze-900/60 rounded-md text-medieaze-800 dark:text-medieaze-200 border-l-4 border-r-4 border-medieaze-400 dark:border-medieaze-400">
+                    "Your Health, Our Priority"
                   </p>
                 </div>
               </div>
