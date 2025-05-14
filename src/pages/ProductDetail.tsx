@@ -14,17 +14,29 @@ import PurchaseOptions from '@/components/product/PurchaseOptions';
 import QuantitySelector from '@/components/product/QuantitySelector';
 import ProductDetailTabs from '@/components/product/ProductDetailTabs';
 import { toast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { CartItem } from '@/types';
 
 const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addItem } = useCart();
-  const addToCartButtonRef = useRef<HTMLButtonElement>(null);
+  const { cart, addItem } = useCart();
   const productImageRef = useRef<HTMLDivElement>(null);
   
   const product = getProductById(id || '');
   const [purchaseType, setPurchaseType] = useState<'rent' | 'buy'>('rent');
   const [quantity, setQuantity] = useState(1);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [existingCartItemInfo, setExistingCartItemInfo] = useState<{ name: string; existingQuantity: number; purchaseType: 'rent' | 'buy', newQuantity: number } | null>(null);
   
   if (!product) {
     return (
@@ -37,8 +49,8 @@ const ProductDetail: React.FC = () => {
       </div>
     );
   }
-  
-  const handleAddToCart = () => {
+
+  const performAddToCart = () => {
     const price = purchaseType === 'rent' ? product.rentPrice : product.buyPrice;
     
     addItem({
@@ -46,11 +58,10 @@ const ProductDetail: React.FC = () => {
       name: product.name,
       image: product.image,
       price,
-      quantity,
+      quantity, // This is the quantity to add
       purchaseType
     });
 
-    // Start animation
     if (window.animateProductToCart && productImageRef.current) {
       const rect = productImageRef.current.getBoundingClientRect();
       window.animateProductToCart(
@@ -61,8 +72,27 @@ const ProductDetail: React.FC = () => {
     
     toast({
       title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
+      description: `${product.name} (${quantity} ${quantity > 1 ? 'units' : 'unit'}) has been added/updated in your cart.`,
     });
+    setQuantity(1); // Reset quantity selector to 1
+  };
+  
+  const handleAddToCartAttempt = () => {
+    const existingItem = cart.items.find(
+      (item) => item.productId === product.id && item.purchaseType === purchaseType
+    );
+
+    if (existingItem) {
+      setExistingCartItemInfo({
+        name: product.name,
+        existingQuantity: existingItem.quantity,
+        purchaseType: purchaseType,
+        newQuantity: quantity
+      });
+      setShowConfirmDialog(true);
+    } else {
+      performAddToCart();
+    }
   };
   
   return (
@@ -75,13 +105,11 @@ const ProductDetail: React.FC = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-            {/* Product Image */}
             <div ref={productImageRef}>
               <ProductImage image={product.image} name={product.name} />
             </div>
             
-            {/* Product Details */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+            <div className="bg-card text-card-foreground p-6 rounded-lg shadow-sm">
               <ProductHeader 
                 name={product.name} 
                 category={product.category} 
@@ -89,7 +117,6 @@ const ProductDetail: React.FC = () => {
                 description={product.description} 
               />
               
-              {/* Purchase Options */}
               <PurchaseOptions
                 rentPrice={product.rentPrice}
                 buyPrice={product.buyPrice}
@@ -97,16 +124,13 @@ const ProductDetail: React.FC = () => {
                 onChange={setPurchaseType}
               />
               
-              {/* Quantity Selector */}
               <QuantitySelector 
                 quantity={quantity}
                 onChange={setQuantity}
               />
               
-              {/* Add to Cart Button - With improved visibility */}
               <Button 
-                ref={addToCartButtonRef}
-                onClick={handleAddToCart}
+                onClick={handleAddToCartAttempt}
                 disabled={!product.available}
                 className="w-full bg-mediease-600 hover:bg-mediease-700 dark:hover:bg-mediease-500 text-white font-bold py-6 text-lg shadow-md border-2 border-mediease-500 dark:border-mediease-400"
               >
@@ -115,13 +139,35 @@ const ProductDetail: React.FC = () => {
             </div>
           </div>
           
-          {/* Additional Information Tabs */}
           <div className="mt-12">
             <ProductDetailTabs category={product.category} />
           </div>
         </div>
       </main>
       <Footer />
+
+      {existingCartItemInfo && (
+        <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Item Already in Cart</AlertDialogTitle>
+              <AlertDialogDescription>
+                You already have {existingCartItemInfo.existingQuantity} unit(s) of {existingCartItemInfo.name} ({existingCartItemInfo.purchaseType}) in your cart. 
+                Do you want to add {existingCartItemInfo.newQuantity} more unit(s)?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setExistingCartItemInfo(null)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => {
+                performAddToCart();
+                setExistingCartItemInfo(null);
+              }}>
+                Yes, Add More
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </div>
   );
 };

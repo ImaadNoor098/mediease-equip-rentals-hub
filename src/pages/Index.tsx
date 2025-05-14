@@ -23,60 +23,60 @@ const Index = () => {
         <HowItWorks />
         
         {/* Testimonials Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-white dark:bg-gray-900">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-medieaze-900">What Our Customers Say</h2>
-              <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+              <h2 className="text-3xl font-bold text-medieaze-900 dark:text-white">What Our Customers Say</h2>
+              <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Read about experiences from people who have used our services
               </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Testimonial 1 */}
-              <div className="bg-medieaze-50 p-6 rounded-lg border border-medieaze-100">
+              <div className="bg-medieaze-50 dark:bg-gray-800 p-6 rounded-lg border border-medieaze-100 dark:border-gray-700">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-medieaze-200 flex items-center justify-center text-medieaze-700 font-bold text-xl">
+                  <div className="w-12 h-12 rounded-full bg-medieaze-200 dark:bg-medieaze-700 flex items-center justify-center text-medieaze-700 dark:text-medieaze-200 font-bold text-xl">
                     R
                   </div>
                   <div className="ml-4">
-                    <h4 className="font-semibold">Rajesh Kumar</h4>
-                    <p className="text-sm text-gray-600">Delhi</p>
+                    <h4 className="font-semibold text-medieaze-900 dark:text-white">Rajesh Kumar</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Delhi</p>
                   </div>
                 </div>
-                <p className="text-gray-700 italic">
+                <p className="text-gray-700 dark:text-gray-300 italic">
                   "Renting an oxygen concentrator for my father was so easy with MediEaze. The equipment was in excellent condition and their service was prompt. Highly recommended!"
                 </p>
               </div>
               
               {/* Testimonial 2 */}
-              <div className="bg-medieaze-50 p-6 rounded-lg border border-medieaze-100">
+              <div className="bg-medieaze-50 dark:bg-gray-800 p-6 rounded-lg border border-medieaze-100 dark:border-gray-700">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-medieaze-200 flex items-center justify-center text-medieaze-700 font-bold text-xl">
+                  <div className="w-12 h-12 rounded-full bg-medieaze-200 dark:bg-medieaze-700 flex items-center justify-center text-medieaze-700 dark:text-medieaze-200 font-bold text-xl">
                     P
                   </div>
                   <div className="ml-4">
-                    <h4 className="font-semibold">Priya Sharma</h4>
-                    <p className="text-sm text-gray-600">Mumbai</p>
+                    <h4 className="font-semibold text-medieaze-900 dark:text-white">Priya Sharma</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Mumbai</p>
                   </div>
                 </div>
-                <p className="text-gray-700 italic">
+                <p className="text-gray-700 dark:text-gray-300 italic">
                   "The hospital bed we rented for my mother was delivered quickly and was in perfect condition. The staff was helpful in explaining how to use it. Great experience!"
                 </p>
               </div>
               
               {/* Testimonial 3 */}
-              <div className="bg-medieaze-50 p-6 rounded-lg border border-medieaze-100">
+              <div className="bg-medieaze-50 dark:bg-gray-800 p-6 rounded-lg border border-medieaze-100 dark:border-gray-700">
                 <div className="flex items-center mb-4">
-                  <div className="w-12 h-12 rounded-full bg-medieaze-200 flex items-center justify-center text-medieaze-700 font-bold text-xl">
+                  <div className="w-12 h-12 rounded-full bg-medieaze-200 dark:bg-medieaze-700 flex items-center justify-center text-medieaze-700 dark:text-medieaze-200 font-bold text-xl">
                     A
                   </div>
                   <div className="ml-4">
-                    <h4 className="font-semibold">Amit Patel</h4>
-                    <p className="text-sm text-gray-600">Bangalore</p>
+                    <h4 className="font-semibold text-medieaze-900 dark:text-white">Amit Patel</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Bangalore</p>
                   </div>
                 </div>
-                <p className="text-gray-700 italic">
+                <p className="text-gray-700 dark:text-gray-300 italic">
                   "I needed a wheelchair temporarily after surgery. MediEaze provided a high-quality chair at a fraction of the cost of buying. Will definitely use their services again if needed."
                 </p>
               </div>
