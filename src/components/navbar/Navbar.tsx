@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 import Logo from './Logo';
 import SearchBar from './SearchBar';
 import CartButton from './CartButton';
+import UserProfile from './UserProfile';
 import Navigation from './Navigation';
 import MobileMenu from './MobileMenu';
 
@@ -38,8 +39,9 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
             <SearchBar onSearch={onSearch} />
           </div>
 
-          {/* Cart Icon and Mobile Menu Button */}
-          <div className="flex items-center">
+          {/* User Profile, Cart Icon and Mobile Menu Button */}
+          <div className="flex items-center space-x-2">
+            <UserProfile />
             <CartButton />
 
             {/* Mobile Menu Button */}
