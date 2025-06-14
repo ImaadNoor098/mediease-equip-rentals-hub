@@ -1,5 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+type SavedAddress = {
+  id: string;
+  fullName: string;
+  mobileNumber: string;
+  pincode: string;
+  addressLine1: string;
+  addressLine2?: string;
+  landmark?: string;
+  city: string;
+  state: string;
+  isDefault?: boolean;
+};
+
 type User = {
   id: string;
   name: string;
@@ -7,6 +20,7 @@ type User = {
   phone: string;
   address: string;
   orderHistory?: OrderHistoryItem[];
+  savedAddresses?: SavedAddress[];
 };
 
 type OrderHistoryItem = {
@@ -39,6 +53,9 @@ type AuthContextType = {
   updateUser: (userData: Partial<User>) => void;
   addOrder: (order: OrderHistoryItem) => void;
   deleteOrder: (orderId: string) => void;
+  addSavedAddress: (address: Omit<SavedAddress, 'id'>) => void;
+  deleteSavedAddress: (addressId: string) => void;
+  setDefaultAddress: (addressId: string) => void;
 };
 
 type RegisterData = {
@@ -142,7 +159,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       email: userData.email,
       phone: userData.phone,
       address: userData.address,
-      orderHistory: []
+      orderHistory: [],
+      savedAddresses: []
     };
     
     // Store user in our database
@@ -223,6 +241,83 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const addSavedAddress = (address: Omit<SavedAddress, 'id'>) => {
+    if (!user) return;
+
+    const newAddress: SavedAddress = {
+      ...address,
+      id: Date.now().toString(),
+      isDefault: (user.savedAddresses || []).length === 0 // First address is default
+    };
+
+    const updatedUser = {
+      ...user,
+      savedAddresses: [...(user.savedAddresses || []), newAddress]
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
+  const deleteSavedAddress = (addressId: string) => {
+    if (!user) return;
+
+    const updatedUser = {
+      ...user,
+      savedAddresses: (user.savedAddresses || []).filter(addr => addr.id !== addressId)
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
+  const setDefaultAddress = (addressId: string) => {
+    if (!user) return;
+
+    const updatedAddresses = (user.savedAddresses || []).map(addr => ({
+      ...addr,
+      isDefault: addr.id === addressId
+    }));
+
+    const updatedUser = {
+      ...user,
+      savedAddresses: updatedAddresses
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -232,6 +327,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateUser,
     addOrder,
     deleteOrder,
+    addSavedAddress,
+    deleteSavedAddress,
+    setDefaultAddress,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
