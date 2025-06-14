@@ -13,6 +13,7 @@ const PaymentSuccess: React.FC = () => {
   const { clearCart, cart } = useCart();
   const { addOrder } = useAuth();
   const [countdown, setCountdown] = useState(5);
+  const [orderSaved, setOrderSaved] = useState(false);
   
   const { method, total, savings, paymentId, shippingAddress } = location.state || { 
     method: 'Online Payment', 
@@ -22,30 +23,38 @@ const PaymentSuccess: React.FC = () => {
     shippingAddress: null
   };
   
-  // Clear cart and save order on successful payment
+  // Clear cart and save order on successful payment - only once
   useEffect(() => {
+    if (orderSaved) return; // Prevent duplicate order saving
+    
     console.log('PaymentSuccess: Cart items:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
-    // Save the order to user's order history - even if cart is empty (for testing)
-    if (cart.items.length > 0 || total > 0) {
+    // Save the order to user's order history - only if we have items or total
+    if ((cart.items.length > 0 || total > 0) && !orderSaved) {
       const order = {
         id: paymentId || `order_${Date.now()}`,
         date: new Date().toISOString(),
         total: total || 0,
         method: method || 'Online Payment',
         items: cart.items.length > 0 ? cart.items.map(item => ({
+          id: item.id || `item_${Date.now()}_${Math.random()}`,
           name: item.name,
           quantity: item.quantity,
           price: item.price,
-          purchaseType: item.purchaseType,
+          purchaseType: item.purchaseType || 'buy',
           image: item.image,
-          retailPrice: item.retailPrice
+          retailPrice: item.retailPrice,
+          description: item.description || '',
+          category: item.category || 'Medical Equipment'
         })) : [{
+          id: `test_item_${Date.now()}`,
           name: 'Test Order Item',
           quantity: 1,
           price: total || 0,
-          purchaseType: 'buy' as const
+          purchaseType: 'buy' as const,
+          description: 'Test order for payment verification',
+          category: 'Test'
         }],
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
@@ -56,18 +65,21 @@ const PaymentSuccess: React.FC = () => {
           pincode: shippingAddress.pincode,
           mobileNumber: shippingAddress.mobileNumber
         } : undefined,
-        savings: savings || 0
+        savings: savings || 0,
+        status: 'confirmed'
       };
       
       console.log('PaymentSuccess: Adding order to history:', order);
       addOrder(order);
+      setOrderSaved(true);
+      clearCart();
     } else {
-      console.log('PaymentSuccess: No items in cart and no total amount');
+      console.log('PaymentSuccess: No items in cart and no total amount or order already saved');
     }
-    
-    clearCart();
-    
-    // Redirect to home after countdown
+  }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart]);
+  
+  // Separate effect for countdown to avoid interference
+  useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
         if (prev <= 1) {
@@ -80,7 +92,7 @@ const PaymentSuccess: React.FC = () => {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [clearCart, navigate, addOrder, cart.items, total, method, savings, paymentId, shippingAddress]);
+  }, [navigate]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-mediease-50 px-4">

@@ -5,12 +5,15 @@ export type OrderHistoryItem = {
   total: number;
   method: string;
   items: Array<{
+    id?: string;
     name: string;
     quantity: number;
     price: number;
     purchaseType?: 'rent' | 'buy';
     image?: string;
     retailPrice?: number;
+    description?: string;
+    category?: string;
   }>;
   shippingAddress?: {
     fullName: string;
@@ -22,4 +25,5 @@ export type OrderHistoryItem = {
     mobileNumber?: string;
   };
   savings: number;
+  status?: 'pending' | 'confirmed' | 'shipped' | 'delivered';
 };
