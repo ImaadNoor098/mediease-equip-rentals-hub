@@ -4,9 +4,12 @@ import { User } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import EditProfileDialog from './EditProfileDialog';
+import OrderHistoryDialog from './OrderHistoryDialog';
 
 const UserProfile = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -66,18 +69,32 @@ const UserProfile = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <Button variant="outline" size="sm">
-              Edit Profile
-            </Button>
-            <Button variant="outline" size="sm">
-              Order History
-            </Button>
+            <EditProfileDialog />
+            <OrderHistoryDialog />
             <Button variant="outline" size="sm">
               Settings
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleLogout}>
-              Sign Out
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                  Sign Out
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You will be signed out of your account and redirected to the homepage.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleLogout}>
+                    Yes, Sign Out
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </PopoverContent>
