@@ -12,9 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { MapPin, Plus, Trash2 } from 'lucide-react';
+import { MapPin, Plus, Trash2, Home, Briefcase, GraduationCap, Building, Users } from 'lucide-react';
 
 const addressSchema = z.object({
   fullName: z.string().min(2, { message: "Full name must be at least 2 characters." }),
@@ -25,9 +27,26 @@ const addressSchema = z.object({
   landmark: z.string().optional(),
   city: z.string().min(2, { message: "Please enter a valid city name." }),
   state: z.string().min(2, { message: "Please enter a valid state name." }),
+  type: z.enum(['home', 'work', 'hostel', 'college', 'friend'], { message: "Please select an address type." }),
 });
 
 export type AddressFormData = z.infer<typeof addressSchema>;
+
+const addressTypeIcons = {
+  home: Home,
+  work: Briefcase,
+  hostel: Building,
+  college: GraduationCap,
+  friend: Users,
+};
+
+const addressTypeLabels = {
+  home: 'Home',
+  work: 'Work',
+  hostel: 'Hostel',
+  college: 'College',
+  friend: "Friend's Home",
+};
 
 const CheckoutAddress: React.FC = () => {
   const navigate = useNavigate();
@@ -56,26 +75,15 @@ const CheckoutAddress: React.FC = () => {
       landmark: '',
       city: '',
       state: '',
+      type: 'home',
     },
   });
 
   const onSubmit = (data: AddressFormData) => {
     console.log('Address submitted:', data);
     
-    // Create the address object with required fields
-    const newAddress = {
-      fullName: data.fullName,
-      mobileNumber: data.mobileNumber,
-      pincode: data.pincode,
-      addressLine1: data.addressLine1,
-      addressLine2: data.addressLine2 || '',
-      landmark: data.landmark || '',
-      city: data.city,
-      state: data.state,
-    };
-    
     // Save the new address
-    addSavedAddress(newAddress);
+    addSavedAddress(data);
     
     toast({
       title: "Address Saved",
@@ -83,7 +91,7 @@ const CheckoutAddress: React.FC = () => {
     });
     
     // Navigate to payment with the new address
-    navigate('/payment', { state: { shippingAddress: newAddress } });
+    navigate('/payment', { state: { shippingAddress: data } });
   };
 
   const handleExistingAddressSubmit = () => {
@@ -144,47 +152,76 @@ const CheckoutAddress: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <RadioGroup value={selectedAddressId} onValueChange={setSelectedAddressId}>
-                    {savedAddresses.map((address) => (
-                      <div key={address.id} className="flex items-start space-x-3 border rounded-lg p-4">
-                        <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Label htmlFor={address.id} className="font-medium cursor-pointer">
-                              {address.fullName}
-                            </Label>
-                            {address.isDefault && (
-                              <Badge variant="secondary" className="text-xs">Default</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {address.addressLine1}, {address.addressLine2 && `${address.addressLine2}, `}
-                            {address.city}, {address.state} - {address.pincode}
-                          </p>
-                          <p className="text-sm text-muted-foreground">Mobile: {address.mobileNumber}</p>
-                          <div className="flex gap-2 mt-2">
-                            {!address.isDefault && (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSetDefaultAddress(address.id)}
-                              >
-                                Set as Default
-                              </Button>
-                            )}
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteAddress(address.id)}
-                              className="text-red-600 hover:text-red-700"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                    {savedAddresses.map((address) => {
+                      const TypeIcon = addressTypeIcons[address.type];
+                      return (
+                        <div key={address.id} className="flex items-start space-x-3 border rounded-lg p-4">
+                          <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
+                          <div className="flex-1 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Label htmlFor={address.id} className="font-medium cursor-pointer">
+                                {address.fullName}
+                              </Label>
+                              <div className="flex items-center gap-1">
+                                <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                                <Badge variant="secondary" className="text-xs">
+                                  {addressTypeLabels[address.type]}
+                                </Badge>
+                              </div>
+                              {address.isDefault && (
+                                <Badge variant="secondary" className="text-xs">Default</Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {address.addressLine1}, {address.addressLine2 && `${address.addressLine2}, `}
+                              {address.city}, {address.state} - {address.pincode}
+                            </p>
+                            <p className="text-sm text-muted-foreground">Mobile: {address.mobileNumber}</p>
+                            <div className="flex gap-2 mt-2">
+                              {!address.isDefault && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleSetDefaultAddress(address.id)}
+                                >
+                                  Set as Default
+                                </Button>
+                              )}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 hover:text-red-700"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Address</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this address? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleDeleteAddress(address.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </RadioGroup>
                   
                   <div className="flex gap-3 pt-4">
@@ -230,6 +267,37 @@ const CheckoutAddress: React.FC = () => {
                 <CardContent>
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+                      <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Address Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select address type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Object.entries(addressTypeLabels).map(([value, label]) => {
+                                  const Icon = addressTypeIcons[value as keyof typeof addressTypeIcons];
+                                  return (
+                                    <SelectItem key={value} value={value}>
+                                      <div className="flex items-center gap-2">
+                                        <Icon className="h-4 w-4" />
+                                        {label}
+                                      </div>
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
                       <FormField
                         control={form.control}
                         name="fullName"

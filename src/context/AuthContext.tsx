@@ -1,4 +1,5 @@
 
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type SavedAddress = {
@@ -11,6 +12,7 @@ type SavedAddress = {
   landmark?: string;
   city: string;
   state: string;
+  type: 'home' | 'work' | 'hostel' | 'college' | 'friend';
   isDefault?: boolean;
 };
 
