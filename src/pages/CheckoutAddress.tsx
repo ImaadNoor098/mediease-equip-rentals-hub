@@ -82,8 +82,21 @@ const CheckoutAddress: React.FC = () => {
   const onSubmit = (data: AddressFormData) => {
     console.log('Address submitted:', data);
     
+    // Create the address object with all required fields
+    const newAddress = {
+      fullName: data.fullName,
+      mobileNumber: data.mobileNumber,
+      pincode: data.pincode,
+      addressLine1: data.addressLine1,
+      addressLine2: data.addressLine2 || '',
+      landmark: data.landmark || '',
+      city: data.city,
+      state: data.state,
+      type: data.type,
+    };
+    
     // Save the new address
-    addSavedAddress(data);
+    addSavedAddress(newAddress);
     
     toast({
       title: "Address Saved",
@@ -91,7 +104,7 @@ const CheckoutAddress: React.FC = () => {
     });
     
     // Navigate to payment with the new address
-    navigate('/payment', { state: { shippingAddress: data } });
+    navigate('/payment', { state: { shippingAddress: newAddress } });
   };
 
   const handleExistingAddressSubmit = () => {
