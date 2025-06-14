@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -318,41 +317,6 @@ const OrderHistoryDialog = () => {
       </DialogContent>
     </Dialog>
   );
-
-  function handleSelectOrder(orderId: string) {
-    const newSelected = new Set(selectedOrders);
-    if (newSelected.has(orderId)) {
-      newSelected.delete(orderId);
-    } else {
-      newSelected.add(orderId);
-    }
-    setSelectedOrders(newSelected);
-    console.log('Selected orders updated:', Array.from(newSelected));
-  }
-
-  function handleSelectAll() {
-    if (selectedOrders.size === orders.length) {
-      setSelectedOrders(new Set());
-    } else {
-      setSelectedOrders(new Set(orders.map(order => order.id)));
-    }
-  }
-
-  function showOrderDetails(order: any) {
-    setSelectedOrder(order);
-  }
-
-  function goBackToList() {
-    setSelectedOrder(null);
-  }
-
-  function handleDialogOpenChange(open: boolean) {
-    setIsOpen(open);
-    if (!open) {
-      setSelectedOrders(new Set());
-      setSelectedOrder(null);
-    }
-  }
 };
 
 export default OrderHistoryDialog;
