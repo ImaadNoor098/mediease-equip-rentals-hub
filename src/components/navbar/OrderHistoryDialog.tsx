@@ -43,8 +43,12 @@ const OrderHistoryDialog = () => {
     console.log('Deleting selected orders:', Array.from(selectedOrders));
     const ordersToDelete = Array.from(selectedOrders);
     
+    // Check if we're viewing a deleted order before clearing selections
+    const isViewingDeletedOrder = selectedOrder && selectedOrders.has(selectedOrder.id);
+    
     // Delete each selected order
     ordersToDelete.forEach(orderId => {
+      console.log('Deleting order:', orderId);
       deleteOrder(orderId);
     });
     
@@ -52,7 +56,7 @@ const OrderHistoryDialog = () => {
     setSelectedOrders(new Set());
     
     // Go back to list if we're viewing a deleted order
-    if (selectedOrder && selectedOrders.has(selectedOrder.id)) {
+    if (isViewingDeletedOrder) {
       setSelectedOrder(null);
     }
     
