@@ -4,16 +4,33 @@ import { User } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 
 const UserProfile = () => {
-  // Mock user data - in a real app this would come from auth context
-  const user = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatar: '',
-    initials: 'JD',
-    joinDate: 'January 2024'
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
   };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <Button variant="ghost" size="icon" onClick={handleLogin}>
+        <User size={24} className="text-foreground" />
+      </Button>
+    );
+  }
 
   return (
     <Popover>
@@ -26,21 +43,25 @@ const UserProfile = () => {
         <div className="space-y-4">
           <div className="flex items-center space-x-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarImage src="" alt={user?.name} />
               <AvatarFallback className="bg-primary text-primary-foreground">
-                {user.initials}
+                {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="space-y-1">
-              <h4 className="text-sm font-semibold">{user.name}</h4>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <h4 className="text-sm font-semibold">{user?.name}</h4>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
           
           <div className="space-y-2">
             <div className="text-sm">
-              <span className="font-medium">Member since:</span>
-              <span className="ml-2 text-muted-foreground">{user.joinDate}</span>
+              <span className="font-medium">Phone:</span>
+              <span className="ml-2 text-muted-foreground">{user?.phone}</span>
+            </div>
+            <div className="text-sm">
+              <span className="font-medium">Address:</span>
+              <span className="ml-2 text-muted-foreground">{user?.address}</span>
             </div>
           </div>
 
@@ -54,7 +75,7 @@ const UserProfile = () => {
             <Button variant="outline" size="sm">
               Settings
             </Button>
-            <Button variant="destructive" size="sm">
+            <Button variant="destructive" size="sm" onClick={handleLogout}>
               Sign Out
             </Button>
           </div>

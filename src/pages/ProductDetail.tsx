@@ -1,8 +1,8 @@
-
 import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProductById } from '@/data/products';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackButton from '@/components/BackButton';
@@ -13,6 +13,7 @@ import ProductHeader from '@/components/product/ProductHeader';
 import PurchaseOptions from '@/components/product/PurchaseOptions';
 import QuantitySelector from '@/components/product/QuantitySelector';
 import ProductDetailTabs from '@/components/product/ProductDetailTabs';
+import AuthPromptDialog from '@/components/AuthPromptDialog';
 import { toast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -30,12 +31,14 @@ const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { cart, addItem } = useCart();
+  const { isAuthenticated } = useAuth();
   const productImageRef = useRef<HTMLDivElement>(null);
   
   const product = getProductById(id || '');
   const [purchaseType, setPurchaseType] = useState<'rent' | 'buy'>('rent');
   const [quantity, setQuantity] = useState(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [existingCartItemInfo, setExistingCartItemInfo] = useState<{ name: string; existingQuantity: number; purchaseType: 'rent' | 'buy', newQuantity: number } | null>(null);
   
   if (!product) {
@@ -58,7 +61,7 @@ const ProductDetail: React.FC = () => {
       name: product.name,
       image: product.image,
       price,
-      quantity, // This is the quantity to add
+      quantity,
       purchaseType
     });
 
@@ -74,10 +77,16 @@ const ProductDetail: React.FC = () => {
       title: "Added to cart",
       description: `${product.name} (${quantity} ${quantity > 1 ? 'units' : 'unit'}) has been added/updated in your cart.`,
     });
-    setQuantity(1); // Reset quantity selector to 1
+    setQuantity(1);
   };
   
   const handleAddToCartAttempt = () => {
+    // Check if user is authenticated first
+    if (!isAuthenticated) {
+      setShowAuthDialog(true);
+      return;
+    }
+
     const existingItem = cart.items.find(
       (item) => item.productId === product.id && item.purchaseType === purchaseType
     );
@@ -146,6 +155,13 @@ const ProductDetail: React.FC = () => {
       </main>
       <Footer />
 
+      {/* Auth Prompt Dialog */}
+      <AuthPromptDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog} 
+      />
+
+      {/* Existing Item Confirmation Dialog */}
       {existingCartItemInfo && (
         <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
           <AlertDialogContent>
