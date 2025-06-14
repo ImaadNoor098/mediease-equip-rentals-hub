@@ -156,27 +156,6 @@
   }
 }
 
-/* Improve text contrast for light theme */
-.text-gray-300 {
-  @apply text-gray-600;
-}
-
-.dark .text-gray-300 {
-  @apply text-gray-300;
-}
-
-.text-gray-600 {
-  @apply text-gray-700;
-}
-
-.dark .text-gray-600 {
-  @apply text-gray-300;
-}
-
-.dark .text-gray-700 {
-  @apply text-gray-200;
-}
-
 /* Fix for mobile layout issues */
 @media (max-width: 768px) {
   .container {
