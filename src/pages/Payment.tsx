@@ -10,13 +10,40 @@ import { Banknote, CreditCard } from "lucide-react";
 import { toast } from '@/hooks/use-toast';
 import { AddressFormData } from './CheckoutAddress';
 
+// Razorpay types
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 const Payment: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { cart, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState<boolean>(false);
   const shippingAddress = location.state?.shippingAddress as AddressFormData | undefined;
+
+  // Load Razorpay script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => setRazorpayLoaded(true);
+    script.onerror = () => {
+      toast({
+        title: "Payment Gateway Error",
+        description: "Failed to load payment gateway. Please try again.",
+        variant: "destructive"
+      });
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (!shippingAddress && cart.items.length > 0) {
@@ -53,6 +80,73 @@ const Payment: React.FC = () => {
   
   const handlePaymentSelection = (value: string) => {
     setPaymentMethod(value);
+  };
+
+  const handleRazorpayPayment = () => {
+    if (!razorpayLoaded) {
+      toast({
+        title: "Payment Gateway Loading",
+        description: "Please wait for the payment gateway to load.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const options = {
+      key: 'rzp_test_9999999999', // Replace with your Razorpay key ID
+      amount: Math.round(total * 100), // Amount in paise
+      currency: 'INR',
+      name: 'MediEaze',
+      description: 'Medical Equipment Purchase',
+      image: '/favicon.ico',
+      prefill: {
+        name: shippingAddress?.fullName || '',
+        email: 'customer@example.com',
+        contact: '9548160990'
+      },
+      notes: {
+        address: shippingAddress ? `${shippingAddress.addressLine1}, ${shippingAddress.city}` : ''
+      },
+      theme: {
+        color: '#3B82F6'
+      },
+      method: {
+        upi: paymentMethod === 'upi',
+        card: paymentMethod === 'razorpay',
+        netbanking: paymentMethod === 'razorpay',
+        wallet: paymentMethod === 'razorpay'
+      },
+      handler: function (response: any) {
+        console.log('Payment successful:', response);
+        toast({
+          title: "Payment Successful!",
+          description: `Payment ID: ${response.razorpay_payment_id}`,
+        });
+        clearCart();
+        navigate('/payment-success', { 
+          state: { 
+            method: paymentMethod === 'upi' ? 'UPI Payment' : 'Razorpay',
+            total,
+            savings,
+            shippingAddress,
+            paymentId: response.razorpay_payment_id
+          } 
+        });
+      },
+      modal: {
+        ondismiss: function() {
+          toast({
+            title: "Payment Cancelled",
+            description: "You cancelled the payment process.",
+            variant: "destructive"
+          });
+          setLoading(false);
+        }
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
   
   const handlePaymentProcess = async () => {
@@ -91,24 +185,9 @@ const Payment: React.FC = () => {
           } 
         });
       }, 1500);
-    } else {
-      toast({
-        title: "Redirecting to Payment Gateway",
-        description: "Please wait while we redirect you..."
-      });
-      
-      setTimeout(() => {
-        setLoading(false);
-        clearCart();
-        navigate('/payment-success', { 
-          state: { 
-            method: paymentMethod === 'razorpay' ? 'Razorpay' : 'UPI Payment',
-            total,
-            savings,
-            shippingAddress
-          } 
-        });
-      }, 2000);
+    } else if (paymentMethod === 'razorpay' || paymentMethod === 'upi') {
+      handleRazorpayPayment();
+      setLoading(false);
     }
   };
   
@@ -163,7 +242,7 @@ const Payment: React.FC = () => {
                   <RadioGroupItem value="razorpay" id="razorpay" />
                   <CreditCard className="h-5 w-5 text-medieaze-600 dark:text-medieaze-400" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">Razorpay (Cards, Netbanking, UPI)</p>
+                    <p className="font-medium text-foreground">Razorpay (Cards, Netbanking, Wallets)</p>
                     <p className="text-sm text-muted-foreground">Securely pay using Razorpay gateway.</p>
                   </div>
                   <img src="https://razorpay.com/assets/razorpay-logo.svg" alt="Razorpay" className="h-6 payment-logo" />
@@ -173,8 +252,8 @@ const Payment: React.FC = () => {
                   <RadioGroupItem value="upi" id="upi" />
                   <CreditCard className="h-5 w-5 text-medieaze-600 dark:text-medieaze-400" />
                   <div className="flex-1">
-                    <p className="font-medium text-foreground">UPI Payment</p>
-                    <p className="text-sm text-muted-foreground">Pay with GPay, PhonePe, Paytm, etc.</p>
+                    <p className="font-medium text-foreground">UPI Payment (GPay, PhonePe, Paytm)</p>
+                    <p className="text-sm text-muted-foreground">Pay directly with your UPI apps.</p>
                   </div>
                   <div className="flex space-x-1 payment-method-logos">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" alt="Google Pay" className="h-6 payment-logo" />

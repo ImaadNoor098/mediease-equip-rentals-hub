@@ -12,10 +12,12 @@ const PaymentSuccess: React.FC = () => {
   const { clearCart } = useCart();
   const [countdown, setCountdown] = useState(5);
   
-  const { method, total, savings } = location.state || { 
+  const { method, total, savings, paymentId, shippingAddress } = location.state || { 
     method: 'Online Payment', 
     total: 0,
-    savings: 0
+    savings: 0,
+    paymentId: null,
+    shippingAddress: null
   };
   
   // Clear cart on successful payment
@@ -48,14 +50,34 @@ const PaymentSuccess: React.FC = () => {
         <h1 className="text-3xl font-bold text-mediease-900 mb-3">Payment Successful!</h1>
         <p className="text-gray-600 mb-6">Thank you for your order. Your payment via {method} has been processed successfully.</p>
         
-        <div className="bg-green-50 rounded-lg p-4 mb-6">
-          <p className="font-medium text-green-800">You saved ₹{savings.toFixed(2)} on this order!</p>
-        </div>
+        {paymentId && (
+          <div className="bg-blue-50 rounded-lg p-4 mb-4">
+            <p className="text-sm font-medium text-blue-800">Payment ID: {paymentId}</p>
+          </div>
+        )}
+        
+        {savings > 0 && (
+          <div className="bg-green-50 rounded-lg p-4 mb-6">
+            <p className="font-medium text-green-800">You saved ₹{savings.toFixed(2)} on this order!</p>
+          </div>
+        )}
         
         <div className="mb-8">
           <p className="text-sm text-gray-500">Order Total</p>
           <p className="text-2xl font-bold text-mediease-900">₹{total.toFixed(2)}</p>
         </div>
+
+        {shippingAddress && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-semibold text-gray-800 mb-2">Delivery Address:</h3>
+            <p className="text-sm text-gray-600">{shippingAddress.fullName}</p>
+            <p className="text-sm text-gray-600">
+              {shippingAddress.addressLine1}, {shippingAddress.addressLine2 && `${shippingAddress.addressLine2}, `}
+              {shippingAddress.city}, {shippingAddress.state} - {shippingAddress.pincode}
+            </p>
+            <p className="text-sm text-gray-600">Mobile: {shippingAddress.mobileNumber}</p>
+          </div>
+        )}
         
         <Button 
           onClick={() => navigate('/')}
