@@ -4,12 +4,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import Confetti from '@/components/Confetti';
 
 const PaymentSuccess: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { clearCart } = useCart();
+  const { clearCart, cart } = useCart();
+  const { addOrder } = useAuth();
   const [countdown, setCountdown] = useState(5);
   
   const { method, total, savings, paymentId, shippingAddress } = location.state || { 
@@ -20,8 +22,34 @@ const PaymentSuccess: React.FC = () => {
     shippingAddress: null
   };
   
-  // Clear cart on successful payment
+  // Clear cart and save order on successful payment
   useEffect(() => {
+    // Save the order to user's order history
+    if (cart.items.length > 0) {
+      const order = {
+        id: paymentId || `order_${Date.now()}`,
+        date: new Date().toISOString(),
+        total,
+        method,
+        items: cart.items.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        shippingAddress: shippingAddress ? {
+          fullName: shippingAddress.fullName,
+          addressLine1: shippingAddress.addressLine1,
+          addressLine2: shippingAddress.addressLine2,
+          city: shippingAddress.city,
+          state: shippingAddress.state,
+          pincode: shippingAddress.pincode
+        } : undefined,
+        savings
+      };
+      
+      addOrder(order);
+    }
+    
     clearCart();
     
     // Redirect to home after countdown
@@ -37,7 +65,7 @@ const PaymentSuccess: React.FC = () => {
     }, 1000);
     
     return () => clearInterval(timer);
-  }, [clearCart, navigate]);
+  }, [clearCart, navigate, addOrder, cart.items, total, method, savings, paymentId, shippingAddress]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-mediease-50 px-4">

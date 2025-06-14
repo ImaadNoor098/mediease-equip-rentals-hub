@@ -3,14 +3,24 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useAuth } from '@/context/AuthContext';
-import { Package, Calendar, MapPin } from 'lucide-react';
+import { Package, Calendar, MapPin, Trash2 } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 const OrderHistoryDialog = () => {
-  const { user } = useAuth();
+  const { user, deleteOrder } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const orders = user?.orderHistory || [];
+
+  const handleDeleteOrder = (orderId: string) => {
+    deleteOrder(orderId);
+    toast({
+      title: "Order Deleted",
+      description: "The order has been removed from your history.",
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -42,9 +52,35 @@ const OrderHistoryDialog = () => {
                         {new Date(order.date).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">₹{order.total.toFixed(2)}</p>
-                      <p className="text-sm text-muted-foreground">{order.method}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="font-semibold">₹{order.total.toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">{order.method}</p>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Order</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete this order from your history? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteOrder(order.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                   

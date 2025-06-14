@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type User = {
@@ -38,6 +37,8 @@ type AuthContextType = {
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
   updateUser: (userData: Partial<User>) => void;
+  addOrder: (order: OrderHistoryItem) => void;
+  deleteOrder: (orderId: string) => void;
 };
 
 type RegisterData = {
@@ -178,6 +179,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const addOrder = (order: OrderHistoryItem) => {
+    if (!user) return;
+
+    const updatedUser = {
+      ...user,
+      orderHistory: [...(user.orderHistory || []), order]
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
+  const deleteOrder = (orderId: string) => {
+    if (!user) return;
+
+    const updatedUser = {
+      ...user,
+      orderHistory: (user.orderHistory || []).filter(order => order.id !== orderId)
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -185,6 +230,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     register,
     logout,
     updateUser,
+    addOrder,
+    deleteOrder,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
