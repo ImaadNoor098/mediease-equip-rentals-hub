@@ -14,6 +14,9 @@ const OrderHistoryDialog = () => {
 
   const orders = user?.orderHistory || [];
 
+  console.log('OrderHistoryDialog: User:', user);
+  console.log('OrderHistoryDialog: Orders:', orders);
+
   const handleDeleteOrder = (orderId: string) => {
     deleteOrder(orderId);
     toast({
@@ -26,7 +29,7 @@ const OrderHistoryDialog = () => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          Order History
+          Order History ({orders.length})
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[80vh]">

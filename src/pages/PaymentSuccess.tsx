@@ -24,18 +24,25 @@ const PaymentSuccess: React.FC = () => {
   
   // Clear cart and save order on successful payment
   useEffect(() => {
-    // Save the order to user's order history
-    if (cart.items.length > 0) {
+    console.log('PaymentSuccess: Cart items:', cart.items);
+    console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
+    
+    // Save the order to user's order history - even if cart is empty (for testing)
+    if (cart.items.length > 0 || total > 0) {
       const order = {
         id: paymentId || `order_${Date.now()}`,
         date: new Date().toISOString(),
-        total,
-        method,
-        items: cart.items.map(item => ({
+        total: total || 0,
+        method: method || 'Online Payment',
+        items: cart.items.length > 0 ? cart.items.map(item => ({
           name: item.name,
           quantity: item.quantity,
           price: item.price
-        })),
+        })) : [{
+          name: 'Test Order Item',
+          quantity: 1,
+          price: total || 0
+        }],
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
           addressLine1: shippingAddress.addressLine1,
@@ -44,10 +51,13 @@ const PaymentSuccess: React.FC = () => {
           state: shippingAddress.state,
           pincode: shippingAddress.pincode
         } : undefined,
-        savings
+        savings: savings || 0
       };
       
+      console.log('PaymentSuccess: Adding order to history:', order);
       addOrder(order);
+    } else {
+      console.log('PaymentSuccess: No items in cart and no total amount');
     }
     
     clearCart();

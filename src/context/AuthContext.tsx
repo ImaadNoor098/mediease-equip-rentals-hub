@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type SavedAddress = {
@@ -105,6 +106,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const userData = JSON.parse(storedUser);
         setUser(userData);
+        console.log('AuthProvider: Loaded user from localStorage:', userData);
       } catch (error) {
         console.error('Error loading current user from localStorage:', error);
         localStorage.removeItem('currentUser');
@@ -124,6 +126,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (user) {
       localStorage.setItem('currentUser', JSON.stringify(user));
+      console.log('AuthProvider: Saved user to localStorage:', user);
     } else {
       localStorage.removeItem('currentUser');
     }
@@ -198,7 +201,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const addOrder = (order: OrderHistoryItem) => {
-    if (!user) return;
+    if (!user) {
+      console.log('AuthProvider: No user logged in, cannot add order');
+      return;
+    }
+
+    console.log('AuthProvider: Adding order for user:', user.email, order);
 
     const updatedUser = {
       ...user,
@@ -216,6 +224,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userData: updatedUser
       });
       setRegisteredUsers(newRegisteredUsers);
+      console.log('AuthProvider: Order added successfully. New order history length:', updatedUser.orderHistory.length);
     }
   };
 
