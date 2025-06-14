@@ -1,5 +1,3 @@
-
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type SavedAddress = {
@@ -56,6 +54,7 @@ type AuthContextType = {
   updateUser: (userData: Partial<User>) => void;
   addOrder: (order: OrderHistoryItem) => void;
   deleteOrder: (orderId: string) => void;
+  bulkDeleteOrders: (orderIds: string[]) => void;
   addSavedAddress: (address: Omit<SavedAddress, 'id'>) => void;
   deleteSavedAddress: (addressId: string) => void;
   setDefaultAddress: (addressId: string) => void;
@@ -252,6 +251,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const bulkDeleteOrders = (orderIds: string[]) => {
+    if (!user) return;
+
+    console.log('AuthContext: Bulk deleting orders:', orderIds);
+
+    const updatedUser = {
+      ...user,
+      orderHistory: (user.orderHistory || []).filter(order => !orderIds.includes(order.id))
+    };
+    
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+
+    console.log('AuthContext: Bulk delete completed. Remaining orders:', updatedUser.orderHistory?.length || 0);
+  };
+
   const addSavedAddress = (address: Omit<SavedAddress, 'id'>) => {
     if (!user) return;
 
@@ -338,6 +363,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateUser,
     addOrder,
     deleteOrder,
+    bulkDeleteOrders,
     addSavedAddress,
     deleteSavedAddress,
     setDefaultAddress,

@@ -10,7 +10,7 @@ import { Package, Calendar, MapPin, Trash2, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 const OrderHistoryDialog = () => {
-  const { user, deleteOrder } = useAuth();
+  const { user, deleteOrder, bulkDeleteOrders } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
@@ -40,17 +40,14 @@ const OrderHistoryDialog = () => {
   };
 
   const handleBulkDelete = () => {
-    console.log('Deleting selected orders:', Array.from(selectedOrders));
+    console.log('Bulk deleting selected orders:', Array.from(selectedOrders));
     const ordersToDelete = Array.from(selectedOrders);
     
     // Check if we're viewing a deleted order before clearing selections
     const isViewingDeletedOrder = selectedOrder && selectedOrders.has(selectedOrder.id);
     
-    // Delete each selected order
-    ordersToDelete.forEach(orderId => {
-      console.log('Deleting order:', orderId);
-      deleteOrder(orderId);
-    });
+    // Use bulk delete function instead of loop
+    bulkDeleteOrders(ordersToDelete);
     
     // Clear selections
     setSelectedOrders(new Set());
@@ -321,6 +318,41 @@ const OrderHistoryDialog = () => {
       </DialogContent>
     </Dialog>
   );
+
+  function handleSelectOrder(orderId: string) {
+    const newSelected = new Set(selectedOrders);
+    if (newSelected.has(orderId)) {
+      newSelected.delete(orderId);
+    } else {
+      newSelected.add(orderId);
+    }
+    setSelectedOrders(newSelected);
+    console.log('Selected orders updated:', Array.from(newSelected));
+  }
+
+  function handleSelectAll() {
+    if (selectedOrders.size === orders.length) {
+      setSelectedOrders(new Set());
+    } else {
+      setSelectedOrders(new Set(orders.map(order => order.id)));
+    }
+  }
+
+  function showOrderDetails(order: any) {
+    setSelectedOrder(order);
+  }
+
+  function goBackToList() {
+    setSelectedOrder(null);
+  }
+
+  function handleDialogOpenChange(open: boolean) {
+    setIsOpen(open);
+    if (!open) {
+      setSelectedOrders(new Set());
+      setSelectedOrder(null);
+    }
+  }
 };
 
 export default OrderHistoryDialog;
