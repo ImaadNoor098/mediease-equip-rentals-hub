@@ -23,6 +23,16 @@ const OrderHistoryDialog = () => {
   const handleDeleteOrder = (orderId: string) => {
     console.log('Deleting single order:', orderId);
     deleteOrder(orderId);
+    // Clear selection if the deleted order was selected
+    if (selectedOrders.has(orderId)) {
+      const newSelected = new Set(selectedOrders);
+      newSelected.delete(orderId);
+      setSelectedOrders(newSelected);
+    }
+    // Go back to list if we're viewing this order
+    if (selectedOrder?.id === orderId) {
+      setSelectedOrder(null);
+    }
     toast({
       title: "Order Deleted",
       description: "The order has been removed from your history.",
@@ -31,13 +41,24 @@ const OrderHistoryDialog = () => {
 
   const handleBulkDelete = () => {
     console.log('Deleting selected orders:', Array.from(selectedOrders));
-    selectedOrders.forEach(orderId => {
+    const ordersToDelete = Array.from(selectedOrders);
+    
+    // Delete each selected order
+    ordersToDelete.forEach(orderId => {
       deleteOrder(orderId);
     });
+    
+    // Clear selections
     setSelectedOrders(new Set());
+    
+    // Go back to list if we're viewing a deleted order
+    if (selectedOrder && selectedOrders.has(selectedOrder.id)) {
+      setSelectedOrder(null);
+    }
+    
     toast({
       title: "Orders Deleted",
-      description: `${selectedOrders.size} orders have been removed from your history.`,
+      description: `${ordersToDelete.length} orders have been removed from your history.`,
     });
   };
 
@@ -68,8 +89,17 @@ const OrderHistoryDialog = () => {
     setSelectedOrder(null);
   };
 
+  // Clear selections when dialog closes
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      setSelectedOrders(new Set());
+      setSelectedOrder(null);
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           Order History ({orders.length})
