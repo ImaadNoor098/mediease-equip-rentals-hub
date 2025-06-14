@@ -69,7 +69,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (storedUsers) {
       try {
         const usersData = JSON.parse(storedUsers);
-        const usersMap = new Map(Object.entries(usersData));
+        // Properly type the entries when creating the Map
+        const usersMap = new Map<string, { password: string; userData: User }>();
+        Object.entries(usersData).forEach(([email, userData]) => {
+          // Type assertion since we know the structure from our storage
+          usersMap.set(email, userData as { password: string; userData: User });
+        });
         setRegisteredUsers(usersMap);
       } catch (error) {
         console.error('Error loading users from localStorage:', error);
