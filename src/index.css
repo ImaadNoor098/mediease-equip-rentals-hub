@@ -21,7 +21,7 @@
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 215 16% 35%;
 
     --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11%;
@@ -136,15 +136,15 @@
 @layer components {
   /* Ensure buttons are visible in all themes */
   button.bg-medieaze-600 {
-    @apply text-white hover:bg-mediease-700;
+    @apply text-white hover:bg-medieaze-700;
   }
 
   button.bg-medieaze-600:hover {
-    @apply bg-mediease-700;
+    @apply bg-medieaze-700;
   }
 
   .dark button.bg-medieaze-600 {
-    @apply text-white hover:bg-mediease-500;
+    @apply text-white hover:bg-medieaze-500;
   }
   
   /* Styled fancy quote */
@@ -156,7 +156,19 @@
   }
 }
 
-/* Make content readable in both themes */
+/* Improve text contrast for light theme */
+.text-gray-300 {
+  @apply text-gray-600;
+}
+
+.dark .text-gray-300 {
+  @apply text-gray-300;
+}
+
+.text-gray-600 {
+  @apply text-gray-700;
+}
+
 .dark .text-gray-600 {
   @apply text-gray-300;
 }
