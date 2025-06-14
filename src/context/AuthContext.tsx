@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type User = {
   id: string;
@@ -7,6 +7,28 @@ type User = {
   email: string;
   phone: string;
   address: string;
+  orderHistory?: OrderHistoryItem[];
+};
+
+type OrderHistoryItem = {
+  id: string;
+  date: string;
+  total: number;
+  method: string;
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
+  shippingAddress?: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  savings: number;
 };
 
 type AuthContextType = {
@@ -15,6 +37,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
+  updateUser: (userData: Partial<User>) => void;
 };
 
 type RegisterData = {
@@ -39,6 +62,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [registeredUsers, setRegisteredUsers] = useState<Map<string, { password: string; userData: User }>>(new Map());
 
+  // Load stored data on initialization
+  useEffect(() => {
+    // Load registered users from localStorage
+    const storedUsers = localStorage.getItem('registeredUsers');
+    if (storedUsers) {
+      try {
+        const usersData = JSON.parse(storedUsers);
+        const usersMap = new Map(Object.entries(usersData));
+        setRegisteredUsers(usersMap);
+      } catch (error) {
+        console.error('Error loading users from localStorage:', error);
+      }
+    }
+
+    // Check if user was previously logged in
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      } catch (error) {
+        console.error('Error loading current user from localStorage:', error);
+        localStorage.removeItem('currentUser');
+      }
+    }
+  }, []);
+
+  // Save registered users to localStorage whenever the map changes
+  useEffect(() => {
+    if (registeredUsers.size > 0) {
+      const usersData = Object.fromEntries(registeredUsers);
+      localStorage.setItem('registeredUsers', JSON.stringify(usersData));
+    }
+  }, [registeredUsers]);
+
+  // Save current user to localStorage whenever user changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('currentUser');
+    }
+  }, [user]);
+
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     // Check if user exists in our registered users
     const userRecord = registeredUsers.get(email);
@@ -57,21 +124,29 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (userData: RegisterData): Promise<boolean> => {
+    // Check if user already exists
+    if (registeredUsers.has(userData.email)) {
+      return false;
+    }
+
     // Create new user
-    const newUser = {
+    const newUser: User = {
       id: Date.now().toString(),
       name: userData.name,
       email: userData.email,
       phone: userData.phone,
-      address: userData.address
+      address: userData.address,
+      orderHistory: []
     };
     
-    // Store user in our mock database
-    registeredUsers.set(userData.email, {
+    // Store user in our database
+    const newRegisteredUsers = new Map(registeredUsers);
+    newRegisteredUsers.set(userData.email, {
       password: userData.password,
       userData: newUser
     });
     
+    setRegisteredUsers(newRegisteredUsers);
     setUser(newUser);
     return true;
   };
@@ -80,12 +155,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
+  const updateUser = (updates: Partial<User>) => {
+    if (!user) return;
+
+    const updatedUser = { ...user, ...updates };
+    setUser(updatedUser);
+
+    // Update the user in registered users as well
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        userData: updatedUser
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

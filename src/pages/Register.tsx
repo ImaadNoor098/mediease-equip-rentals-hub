@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -79,6 +78,12 @@ const Register: React.FC = () => {
           description: "Welcome to MediEase!",
         });
         navigate('/');
+      } else {
+        toast({
+          title: "Registration failed",
+          description: "An account with this email already exists. Please try logging in instead.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
