@@ -82,46 +82,82 @@ const Cart: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 <div className="lg:col-span-2 space-y-4">
                   {cart.items.map((item) => (
-                    <div key={item.id} className="bg-card rounded-lg shadow-sm border border-border p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <img 
-                        src={item.image || '/placeholder.svg'} 
-                        alt={item.name} 
-                        className="w-full sm:w-24 h-auto sm:h-24 object-contain rounded-md border border-border"
-                      />
-                      <div className="flex-grow">
-                        <Link to={`/product/${item.productId}`} className="hover:underline">
-                          <h2 className="text-lg font-semibold text-foreground">{item.name}</h2>
-                        </Link>
-                        <p className="text-sm text-muted-foreground capitalize">{item.purchaseType}</p>
-                        <p className="text-base font-medium text-medieaze-600 dark:text-medieaze-400 mt-1">
-                          ₹{item.price.toFixed(2)}
-                          {item.purchaseType === 'rent' && ' /month'}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 mt-2 sm:mt-0">
-                        <div className="flex items-center border border-border rounded-md">
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                            className="h-8 w-8 text-muted-foreground hover:bg-muted"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="px-3 text-sm font-medium">{item.quantity}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="h-8 w-8 text-muted-foreground hover:bg-muted"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
+                    <div key={item.id} className="bg-card rounded-xl shadow-md border border-border p-4 hover:shadow-lg transition-shadow duration-200">
+                      <Link to={`/product/${item.productId}`} className="block">
+                        <div className="flex items-center gap-4 cursor-pointer">
+                          {/* Product Image */}
+                          <div className="flex-shrink-0">
+                            <div className="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-lg border border-border overflow-hidden">
+                              <img 
+                                src={item.image || '/placeholder.svg'} 
+                                alt={item.name} 
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          </div>
+                          
+                          {/* Product Details */}
+                          <div className="flex-grow min-w-0">
+                            <h2 className="text-lg font-semibold text-foreground line-clamp-1 hover:text-medieaze-600 transition-colors">
+                              {item.name}
+                            </h2>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                item.purchaseType === 'rent' 
+                                  ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' 
+                                  : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                              }`}>
+                                {item.purchaseType === 'rent' ? 'Rent' : 'Buy'}
+                              </span>
+                            </div>
+                            <p className="text-lg font-bold text-medieaze-600 dark:text-medieaze-400 mt-1">
+                              ₹{item.price.toFixed(2)}
+                              {item.purchaseType === 'rent' && <span className="text-sm font-normal"> /month</span>}
+                            </p>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      {/* Quantity Controls */}
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-medium text-muted-foreground">Quantity:</span>
+                          <div className="flex items-center border border-border rounded-lg">
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                updateQuantity(item.id, Math.max(1, item.quantity - 1));
+                              }}
+                              className="h-8 w-8 text-muted-foreground hover:bg-muted"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="px-3 py-1 text-sm font-medium min-w-[40px] text-center">{item.quantity}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                updateQuantity(item.id, item.quantity + 1);
+                              }}
+                              className="h-8 w-8 text-muted-foreground hover:bg-muted"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => removeItem(item.id)} 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeItem(item.id);
+                          }} 
                           className="text-destructive hover:bg-destructive/10 h-8 w-8"
                         >
                           <Trash className="h-4 w-4" />
