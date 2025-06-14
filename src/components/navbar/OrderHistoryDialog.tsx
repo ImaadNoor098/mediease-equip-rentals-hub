@@ -21,6 +21,7 @@ const OrderHistoryDialog = () => {
   console.log('OrderHistoryDialog: Orders:', orders);
 
   const handleDeleteOrder = (orderId: string) => {
+    console.log('Deleting single order:', orderId);
     deleteOrder(orderId);
     toast({
       title: "Order Deleted",
@@ -29,6 +30,7 @@ const OrderHistoryDialog = () => {
   };
 
   const handleBulkDelete = () => {
+    console.log('Deleting selected orders:', Array.from(selectedOrders));
     selectedOrders.forEach(orderId => {
       deleteOrder(orderId);
     });
@@ -47,6 +49,7 @@ const OrderHistoryDialog = () => {
       newSelected.add(orderId);
     }
     setSelectedOrders(newSelected);
+    console.log('Selected orders updated:', Array.from(newSelected));
   };
 
   const handleSelectAll = () => {

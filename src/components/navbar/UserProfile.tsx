@@ -34,7 +34,7 @@ const UserProfile = () => {
   if (!isAuthenticated) {
     return (
       <Button variant="ghost" size="icon" onClick={handleLogin}>
-        <User size={24} className="text-foreground" />
+        <User size={20} className="text-foreground" />
       </Button>
     );
   }
@@ -43,7 +43,7 @@ const UserProfile = () => {
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <User size={24} className="text-foreground" />
+          <User size={20} className="text-foreground" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
