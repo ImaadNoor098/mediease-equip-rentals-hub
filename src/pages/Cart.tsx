@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -16,6 +15,8 @@ const Cart: React.FC = () => {
   const isMobile = useIsMobile();
 
   const handleCheckout = () => {
+    console.log('Checkout button clicked', { cartItems: cart.items.length });
+    
     if (cart.items.length === 0) {
       toast({
         title: "Your cart is empty",
@@ -24,7 +25,18 @@ const Cart: React.FC = () => {
       });
       return;
     }
-    navigate('/checkout-address');
+    
+    try {
+      console.log('Navigating to checkout-address');
+      navigate('/checkout-address');
+    } catch (error) {
+      console.error('Navigation error:', error);
+      toast({
+        title: "Navigation Error",
+        description: "Unable to proceed to checkout. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateSubtotal = () => {

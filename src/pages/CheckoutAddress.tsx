@@ -54,6 +54,7 @@ const CheckoutAddress: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   
+  // Safely get saved addresses with fallback
   const savedAddresses = user?.savedAddresses || [];
   const defaultAddress = savedAddresses.find(addr => addr.isDefault);
 
@@ -82,29 +83,38 @@ const CheckoutAddress: React.FC = () => {
   const onSubmit = (data: AddressFormData) => {
     console.log('Address submitted:', data);
     
-    // Create the address object with all required fields
-    const newAddress = {
-      fullName: data.fullName,
-      mobileNumber: data.mobileNumber,
-      pincode: data.pincode,
-      addressLine1: data.addressLine1,
-      addressLine2: data.addressLine2 || '',
-      landmark: data.landmark || '',
-      city: data.city,
-      state: data.state,
-      type: data.type,
-    };
-    
-    // Save the new address
-    addSavedAddress(newAddress);
-    
-    toast({
-      title: "Address Saved",
-      description: "New address saved successfully. Proceeding to payment.",
-    });
-    
-    // Navigate to payment with the new address
-    navigate('/payment', { state: { shippingAddress: newAddress } });
+    try {
+      // Create the address object with all required fields
+      const newAddress = {
+        fullName: data.fullName,
+        mobileNumber: data.mobileNumber,
+        pincode: data.pincode,
+        addressLine1: data.addressLine1,
+        addressLine2: data.addressLine2 || '',
+        landmark: data.landmark || '',
+        city: data.city,
+        state: data.state,
+        type: data.type,
+      };
+      
+      // Save the new address
+      addSavedAddress(newAddress);
+      
+      toast({
+        title: "Address Saved",
+        description: "New address saved successfully. Proceeding to payment.",
+      });
+      
+      // Navigate to payment with the new address
+      navigate('/payment', { state: { shippingAddress: newAddress } });
+    } catch (error) {
+      console.error('Error saving address:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save address. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleExistingAddressSubmit = () => {
@@ -146,293 +156,315 @@ const CheckoutAddress: React.FC = () => {
     });
   };
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar onSearch={() => {}} />
-      <main className="flex-grow pt-24 pb-16 bg-gray-50 dark:bg-gray-950">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">Shipping Address</h1>
-            
-            {/* Saved Addresses Section */}
-            {savedAddresses.length > 0 && !showNewAddressForm && (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5" />
-                    Saved Addresses
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <RadioGroup value={selectedAddressId} onValueChange={setSelectedAddressId}>
-                    {savedAddresses.map((address) => {
-                      const TypeIcon = addressTypeIcons[address.type];
-                      return (
-                        <div key={address.id} className="flex items-start space-x-3 border rounded-lg p-4">
-                          <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Label htmlFor={address.id} className="font-medium cursor-pointer">
-                                {address.fullName}
-                              </Label>
-                              <div className="flex items-center gap-1">
-                                <TypeIcon className="h-4 w-4 text-muted-foreground" />
-                                <Badge variant="secondary" className="text-xs">
-                                  {addressTypeLabels[address.type]}
-                                </Badge>
+  // Add error boundary-like behavior
+  try {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar onSearch={() => {}} />
+        <main className="flex-grow pt-24 pb-16 bg-gray-50 dark:bg-gray-950">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-center">Shipping Address</h1>
+              
+              {/* Saved Addresses Section */}
+              {savedAddresses.length > 0 && !showNewAddressForm && (
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      Saved Addresses
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <RadioGroup value={selectedAddressId} onValueChange={setSelectedAddressId}>
+                      {savedAddresses.map((address) => {
+                        const TypeIcon = addressTypeIcons[address.type] || Home;
+                        return (
+                          <div key={address.id} className="flex items-start space-x-3 border rounded-lg p-4">
+                            <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
+                            <div className="flex-1 space-y-1">
+                              <div className="flex items-center gap-2">
+                                <Label htmlFor={address.id} className="font-medium cursor-pointer">
+                                  {address.fullName}
+                                </Label>
+                                <div className="flex items-center gap-1">
+                                  <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                                  <Badge variant="secondary" className="text-xs">
+                                    {addressTypeLabels[address.type] || 'Home'}
+                                  </Badge>
+                                </div>
+                                {address.isDefault && (
+                                  <Badge variant="secondary" className="text-xs">Default</Badge>
+                                )}
                               </div>
-                              {address.isDefault && (
-                                <Badge variant="secondary" className="text-xs">Default</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground">
-                              {address.addressLine1}, {address.addressLine2 && `${address.addressLine2}, `}
-                              {address.city}, {address.state} - {address.pincode}
-                            </p>
-                            <p className="text-sm text-muted-foreground">Mobile: {address.mobileNumber}</p>
-                            <div className="flex gap-2 mt-2">
-                              {!address.isDefault && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleSetDefaultAddress(address.id)}
-                                >
-                                  Set as Default
-                                </Button>
-                              )}
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
+                              <p className="text-sm text-muted-foreground">
+                                {address.addressLine1}, {address.addressLine2 && `${address.addressLine2}, `}
+                                {address.city}, {address.state} - {address.pincode}
+                              </p>
+                              <p className="text-sm text-muted-foreground">Mobile: {address.mobileNumber}</p>
+                              <div className="flex gap-2 mt-2">
+                                {!address.isDefault && (
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
-                                    className="text-red-600 hover:text-red-700"
+                                    onClick={() => handleSetDefaultAddress(address.id)}
                                   >
-                                    <Trash2 className="h-4 w-4" />
+                                    Set as Default
                                   </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Delete Address</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Are you sure you want to delete this address? This action cannot be undone.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                      onClick={() => handleDeleteAddress(address.id)}
-                                      className="bg-red-600 hover:bg-red-700"
+                                )}
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-red-600 hover:text-red-700"
                                     >
-                                      Delete
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                                      <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Address</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete this address? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction 
+                                        onClick={() => handleDeleteAddress(address.id)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </RadioGroup>
-                  
-                  <div className="flex gap-3 pt-4">
-                    <Button 
-                      onClick={handleExistingAddressSubmit}
-                      className="flex-1 bg-medieaze-600 hover:bg-medieaze-700"
-                      disabled={!selectedAddressId}
-                    >
-                      Continue with Selected Address
-                    </Button>
-                    <Button 
-                      type="button"
-                      variant="outline"
-                      onClick={() => setShowNewAddressForm(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add New
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* New Address Form */}
-            {(showNewAddressForm || savedAddresses.length === 0) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    Add New Address
-                    {savedAddresses.length > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowNewAddressForm(false)}
+                        );
+                      })}
+                    </RadioGroup>
+                    
+                    <div className="flex gap-3 pt-4">
+                      <Button 
+                        onClick={handleExistingAddressSubmit}
+                        className="flex-1 bg-medieaze-600 hover:bg-medieaze-700"
+                        disabled={!selectedAddressId}
                       >
-                        Cancel
+                        Continue with Selected Address
                       </Button>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="type"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select address type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Object.entries(addressTypeLabels).map(([value, label]) => {
-                                  const Icon = addressTypeIcons[value as keyof typeof addressTypeIcons];
-                                  return (
-                                    <SelectItem key={value} value={value}>
-                                      <div className="flex items-center gap-2">
-                                        <Icon className="h-4 w-4" />
-                                        {label}
-                                      </div>
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Enter your full name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <FormField
-                          control={form.control}
-                          name="mobileNumber"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Mobile Number</FormLabel>
-                              <FormControl>
-                                <Input type="tel" placeholder="10-digit mobile number" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="pincode"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Pincode</FormLabel>
-                              <FormControl>
-                                <Input placeholder="6-digit pincode" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <FormField
-                        control={form.control}
-                        name="addressLine1"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address (House No, Building, Street, Area)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="E.g. 123, Main Street, Jayanagar" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="addressLine2"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Area, Colony, Road (Optional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="E.g. Near City Park" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="landmark"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Landmark (Optional)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="E.g. Opposite Post Office" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <FormField
-                          control={form.control}
-                          name="city"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Town/City</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your city" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="state"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>State</FormLabel>
-                              <FormControl>
-                                <Input placeholder="Enter your state" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <Button type="submit" className="w-full bg-medieaze-600 hover:bg-medieaze-700 text-white py-3 text-base" disabled={form.formState.isSubmitting}>
-                        {form.formState.isSubmitting ? 'Saving Address...' : 'Save Address & Continue'}
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowNewAddressForm(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add New
                       </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* New Address Form */}
+              {(showNewAddressForm || savedAddresses.length === 0) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      Add New Address
+                      {savedAddresses.length > 0 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowNewAddressForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Form {...form}>
+                      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
+                        <FormField
+                          control={form.control}
+                          name="type"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address Type</FormLabel>
+                              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select address type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {Object.entries(addressTypeLabels).map(([value, label]) => {
+                                    const Icon = addressTypeIcons[value as keyof typeof addressTypeIcons];
+                                    return (
+                                      <SelectItem key={value} value={value}>
+                                        <div className="flex items-center gap-2">
+                                          <Icon className="h-4 w-4" />
+                                          {label}
+                                        </div>
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="fullName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Full Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Enter your full name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                          <FormField
+                            control={form.control}
+                            name="mobileNumber"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Mobile Number</FormLabel>
+                                <FormControl>
+                                  <Input type="tel" placeholder="10-digit mobile number" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="pincode"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Pincode</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="6-digit pincode" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <FormField
+                          control={form.control}
+                          name="addressLine1"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Address (House No, Building, Street, Area)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="E.g. 123, Main Street, Jayanagar" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="addressLine2"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Area, Colony, Road (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="E.g. Near City Park" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="landmark"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Landmark (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="E.g. Opposite Post Office" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                          <FormField
+                            control={form.control}
+                            name="city"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Town/City</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter your city" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="state"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>State</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter your state" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <Button type="submit" className="w-full bg-medieaze-600 hover:bg-medieaze-700 text-white py-3 text-base" disabled={form.formState.isSubmitting}>
+                          {form.formState.isSubmitting ? 'Saving Address...' : 'Save Address & Continue'}
+                        </Button>
+                      </form>
+                    </Form>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+        </main>
+        <Footer />
+      </div>
+    );
+  } catch (error) {
+    console.error('CheckoutAddress component error:', error);
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar onSearch={() => {}} />
+        <main className="flex-grow pt-24 pb-16 bg-gray-50 dark:bg-gray-950">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl mx-auto text-center">
+              <h1 className="text-2xl font-bold text-foreground mb-4">Something went wrong</h1>
+              <p className="text-muted-foreground mb-4">Please try refreshing the page or go back to cart.</p>
+              <Button onClick={() => navigate('/cart')} className="bg-medieaze-600 hover:bg-medieaze-700">
+                Back to Cart
+              </Button>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 };
 
 export default CheckoutAddress;
