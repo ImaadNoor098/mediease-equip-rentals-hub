@@ -19,4 +19,5 @@ export interface CartItem {
   price: number;
   quantity: number;
   purchaseType: 'rent' | 'buy';
+  retailPrice?: number;
 }

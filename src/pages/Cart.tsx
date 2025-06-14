@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -11,7 +12,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
+  const { cart, removeItem, updateQuantity, clearCart } = useCart();
   const isMobile = useIsMobile();
 
   const handleCheckout = () => {
@@ -23,7 +24,7 @@ const Cart: React.FC = () => {
       });
       return;
     }
-    navigate('/checkout-address'); // Changed from /payment to /checkout-address
+    navigate('/checkout-address');
   };
 
   const calculateSubtotal = () => {
@@ -32,7 +33,7 @@ const Cart: React.FC = () => {
 
   const calculateTotalSavings = () => {
     return cart.items.reduce((savings, item) => {
-      const retailPrice = item.retailPrice || (item.price / 0.85); // Assume 15% discount if retailPrice not present
+      const retailPrice = item.retailPrice || (item.price / 0.85);
       return savings + (retailPrice - item.price) * item.quantity;
     }, 0);
   };
@@ -66,7 +67,7 @@ const Cart: React.FC = () => {
       <Navbar onSearch={(query) => navigate(`/products?search=${encodeURIComponent(query)}`)} />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4">
-          {cart.items.length === 0 && isMobile ? ( // Mobile specific empty cart
+          {cart.items.length === 0 && isMobile ? (
             <div className="text-center py-12">
               <img src="/placeholder.svg" alt="Empty Cart" className="w-36 h-36 mx-auto mb-6 text-gray-400" />
               <h1 className="text-2xl font-bold text-foreground mb-3">Your Cart is Empty</h1>
@@ -122,7 +123,7 @@ const Cart: React.FC = () => {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => removeFromCart(item.id)} 
+                          onClick={() => removeItem(item.id)} 
                           className="text-destructive hover:bg-destructive/10 h-8 w-8"
                         >
                           <Trash className="h-4 w-4" />
