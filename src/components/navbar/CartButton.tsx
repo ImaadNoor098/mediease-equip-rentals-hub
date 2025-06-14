@@ -74,7 +74,7 @@ const CartButton: React.FC = () => {
         <div className={`${isCartAnimating ? 'animate-cart-bounce' : ''} transition-all relative`}>
           <ShoppingCart className="h-6 w-6 text-foreground" />
           {cart.totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium min-w-[20px] animate-pulse">
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-bold min-w-[20px] shadow-lg border-2 border-white">
               {cart.totalItems > 99 ? '99+' : cart.totalItems}
             </span>
           )}
