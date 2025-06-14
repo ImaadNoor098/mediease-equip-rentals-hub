@@ -20,4 +20,6 @@ export interface CartItem {
   quantity: number;
   purchaseType: 'rent' | 'buy';
   retailPrice?: number;
+  description?: string;
+  category?: string;
 }
