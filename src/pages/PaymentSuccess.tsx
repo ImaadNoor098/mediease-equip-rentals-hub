@@ -37,11 +37,15 @@ const PaymentSuccess: React.FC = () => {
         items: cart.items.length > 0 ? cart.items.map(item => ({
           name: item.name,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
+          purchaseType: item.purchaseType,
+          image: item.image,
+          retailPrice: item.retailPrice
         })) : [{
           name: 'Test Order Item',
           quantity: 1,
-          price: total || 0
+          price: total || 0,
+          purchaseType: 'buy' as const
         }],
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
@@ -49,7 +53,8 @@ const PaymentSuccess: React.FC = () => {
           addressLine2: shippingAddress.addressLine2,
           city: shippingAddress.city,
           state: shippingAddress.state,
-          pincode: shippingAddress.pincode
+          pincode: shippingAddress.pincode,
+          mobileNumber: shippingAddress.mobileNumber
         } : undefined,
         savings: savings || 0
       };

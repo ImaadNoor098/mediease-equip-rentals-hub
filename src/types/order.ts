@@ -8,6 +8,9 @@ export type OrderHistoryItem = {
     name: string;
     quantity: number;
     price: number;
+    purchaseType?: 'rent' | 'buy';
+    image?: string;
+    retailPrice?: number;
   }>;
   shippingAddress?: {
     fullName: string;
