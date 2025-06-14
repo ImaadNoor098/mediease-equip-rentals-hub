@@ -41,8 +41,7 @@ const Cart: React.FC = () => {
   const subtotal = calculateSubtotal();
   const totalSavings = calculateTotalSavings();
 
-
-  if (cart.items.length === 0 && !isMobile) { // Added check for !isMobile for consistent empty cart display
+  if (cart.items.length === 0 && !isMobile) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar onSearch={(query) => navigate(`/products?search=${encodeURIComponent(query)}`)} />
@@ -60,7 +59,6 @@ const Cart: React.FC = () => {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -91,7 +89,7 @@ const Cart: React.FC = () => {
                         className="w-full sm:w-24 h-auto sm:h-24 object-contain rounded-md border border-border"
                       />
                       <div className="flex-grow">
-                        <Link to={`/product/${item.id}`} className="hover:underline">
+                        <Link to={`/product/${item.productId}`} className="hover:underline">
                           <h2 className="text-lg font-semibold text-foreground">{item.name}</h2>
                         </Link>
                         <p className="text-sm text-muted-foreground capitalize">{item.purchaseType}</p>
