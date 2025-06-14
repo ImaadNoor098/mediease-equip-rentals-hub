@@ -34,17 +34,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
             ? { ...item, quantity: item.quantity + action.payload.quantity }
             : item
         );
-        toast({
-          title: "Quantity updated",
-          description: `${action.payload.name} quantity increased in your cart.`
-        });
       } else {
         // Add new item
         newItems = [...state.items, action.payload];
-        toast({
-          title: "Item added to cart",
-          description: `${action.payload.name} added to your cart.`
-        });
       }
       
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -109,8 +101,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [cart, dispatch] = useReducer(cartReducer, initialState);
   
   const addItem = (item: Omit<CartItem, 'id'>) => {
+    // Generate unique ID for each cart item
     const id = `${item.productId}-${item.purchaseType}-${Date.now()}`;
     dispatch({ type: 'ADD_ITEM', payload: { ...item, id } });
+    
+    toast({
+      title: "Added to cart",
+      description: `${item.name} has been added to your cart.`,
+    });
   };
   
   const removeItem = (id: string) => {

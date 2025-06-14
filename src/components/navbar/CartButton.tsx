@@ -8,16 +8,20 @@ const CartButton: React.FC = () => {
   const { cart } = useCart();
   const [isCartAnimating, setIsCartAnimating] = useState(false);
   const cartButtonRef = useRef<HTMLDivElement>(null);
+  const prevTotalItems = useRef(cart.totalItems);
   
-  // Handle cart animation when items added
+  // Handle cart animation when items are added or quantity increases
   useEffect(() => {
-    if (cart.totalItems > 0) {
+    if (cart.totalItems > prevTotalItems.current) {
       setIsCartAnimating(true);
       const timer = setTimeout(() => {
         setIsCartAnimating(false);
       }, 500);
+      
+      prevTotalItems.current = cart.totalItems;
       return () => clearTimeout(timer);
     }
+    prevTotalItems.current = cart.totalItems;
   }, [cart.totalItems]);
 
   // Function for product to cart animation
@@ -67,11 +71,11 @@ const CartButton: React.FC = () => {
   return (
     <div className="relative p-2" ref={cartButtonRef}>
       <Link to="/cart">
-        <div className={`${isCartAnimating ? 'animate-cart-bounce' : ''} transition-all`}>
+        <div className={`${isCartAnimating ? 'animate-cart-bounce' : ''} transition-all relative`}>
           <ShoppingCart className="h-6 w-6 text-foreground" />
           {cart.totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs">
-              {cart.totalItems}
+            <span className="absolute -top-2 -right-2 bg-medieaze-600 text-white rounded-full h-5 w-5 flex items-center justify-center text-xs font-medium min-w-[20px] animate-pulse">
+              {cart.totalItems > 99 ? '99+' : cart.totalItems}
             </span>
           )}
         </div>
