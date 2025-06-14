@@ -43,10 +43,19 @@ const OrderHistoryDialog = () => {
     console.log('Bulk deleting selected orders:', Array.from(selectedOrders));
     const ordersToDelete = Array.from(selectedOrders);
     
+    if (ordersToDelete.length === 0) {
+      toast({
+        title: "No Orders Selected",
+        description: "Please select orders to delete.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Check if we're viewing a deleted order before clearing selections
     const isViewingDeletedOrder = selectedOrder && selectedOrders.has(selectedOrder.id);
     
-    // Use bulk delete function instead of loop
+    // Use bulk delete function
     bulkDeleteOrders(ordersToDelete);
     
     // Clear selections
@@ -59,7 +68,7 @@ const OrderHistoryDialog = () => {
     
     toast({
       title: "Orders Deleted",
-      description: `${ordersToDelete.length} orders have been removed from your history.`,
+      description: `${ordersToDelete.length} order${ordersToDelete.length > 1 ? 's' : ''} ha${ordersToDelete.length > 1 ? 've' : 's'} been removed from your history.`,
     });
   };
 
@@ -75,9 +84,11 @@ const OrderHistoryDialog = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedOrders.size === orders.length) {
+    if (selectedOrders.size === orders.length && orders.length > 0) {
+      console.log('Deselecting all orders');
       setSelectedOrders(new Set());
     } else {
+      console.log('Selecting all orders:', orders.map(order => order.id));
       setSelectedOrders(new Set(orders.map(order => order.id)));
     }
   };
