@@ -21,7 +21,7 @@ const addressSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, { message: "Please enter a valid 10-digit mobile number." }),
   pincode: z.string().regex(/^\d{6}$/, { message: "Please enter a valid 6-digit pincode." }),
   addressLine1: z.string().min(5, { message: "Please enter your house number, building, or street." }),
-  addressLine2: z.string().min(5, { message: "Please enter your area or locality." }).optional().or(z.literal('')),
+  addressLine2: z.string().optional(),
   landmark: z.string().optional(),
   city: z.string().min(2, { message: "Please enter a valid city name." }),
   state: z.string().min(2, { message: "Please enter a valid state name." }),
@@ -62,8 +62,20 @@ const CheckoutAddress: React.FC = () => {
   const onSubmit = (data: AddressFormData) => {
     console.log('Address submitted:', data);
     
+    // Create the address object with required fields
+    const newAddress = {
+      fullName: data.fullName,
+      mobileNumber: data.mobileNumber,
+      pincode: data.pincode,
+      addressLine1: data.addressLine1,
+      addressLine2: data.addressLine2 || '',
+      landmark: data.landmark || '',
+      city: data.city,
+      state: data.state,
+    };
+    
     // Save the new address
-    addSavedAddress(data);
+    addSavedAddress(newAddress);
     
     toast({
       title: "Address Saved",
@@ -71,7 +83,7 @@ const CheckoutAddress: React.FC = () => {
     });
     
     // Navigate to payment with the new address
-    navigate('/payment', { state: { shippingAddress: data } });
+    navigate('/payment', { state: { shippingAddress: newAddress } });
   };
 
   const handleExistingAddressSubmit = () => {
