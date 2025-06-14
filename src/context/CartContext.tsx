@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { CartItem } from '@/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -12,15 +12,39 @@ type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
-  | { type: 'CLEAR_CART' };
+  | { type: 'CLEAR_CART' }
+  | { type: 'LOAD_CART'; payload: CartState };
 
-const initialState: CartState = {
-  items: [],
-  totalItems: 0,
+const CART_STORAGE_KEY = 'medieaze_cart';
+
+const getInitialState = (): CartState => {
+  try {
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    if (savedCart) {
+      const parsedCart = JSON.parse(savedCart);
+      return {
+        items: parsedCart.items || [],
+        totalItems: parsedCart.totalItems || 0
+      };
+    }
+  } catch (error) {
+    console.error('Error loading cart from localStorage:', error);
+  }
+  
+  return {
+    items: [],
+    totalItems: 0,
+  };
 };
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
+  let newState: CartState;
+  
   switch (action.type) {
+    case 'LOAD_CART':
+      newState = action.payload;
+      break;
+      
     case 'ADD_ITEM': {
       const existingItemIndex = state.items.findIndex(
         (item) => item.productId === action.payload.productId && item.purchaseType === action.payload.purchaseType
@@ -40,13 +64,15 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       }
       
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      return { items: newItems, totalItems };
+      newState = { items: newItems, totalItems };
+      break;
     }
     
     case 'REMOVE_ITEM': {
       const newItems = state.items.filter((item) => item.id !== action.payload);
       const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      return { items: newItems, totalItems };
+      newState = { items: newItems, totalItems };
+      break;
     }
     
     case 'UPDATE_QUANTITY': {
@@ -56,23 +82,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
         // Remove item if quantity is 0 or negative
         const newItems = state.items.filter((item) => item.id !== id);
         const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-        return { items: newItems, totalItems };
+        newState = { items: newItems, totalItems };
+      } else {
+        const newItems = state.items.map((item) =>
+          item.id === id ? { ...item, quantity } : item
+        );
+        
+        const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
+        newState = { items: newItems, totalItems };
       }
-      
-      const newItems = state.items.map((item) =>
-        item.id === id ? { ...item, quantity } : item
-      );
-      
-      const totalItems = newItems.reduce((sum, item) => sum + item.quantity, 0);
-      return { items: newItems, totalItems };
+      break;
     }
     
     case 'CLEAR_CART':
-      return initialState;
+      newState = { items: [], totalItems: 0 };
+      break;
       
     default:
       return state;
   }
+  
+  // Save to localStorage whenever state changes (except for LOAD_CART)
+  if (action.type !== 'LOAD_CART') {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newState));
+    } catch (error) {
+      console.error('Error saving cart to localStorage:', error);
+    }
+  }
+  
+  return newState;
 };
 
 type CartContextType = {
@@ -98,7 +137,15 @@ type CartProviderProps = {
 };
 
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
-  const [cart, dispatch] = useReducer(cartReducer, initialState);
+  const [cart, dispatch] = useReducer(cartReducer, getInitialState());
+  
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const initialState = getInitialState();
+    if (initialState.items.length > 0) {
+      dispatch({ type: 'LOAD_CART', payload: initialState });
+    }
+  }, []);
   
   const addItem = (item: Omit<CartItem, 'id'>) => {
     // Generate unique ID for each cart item
@@ -121,6 +168,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   
   const clearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
+    // Also clear from localStorage
+    try {
+      localStorage.removeItem(CART_STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing cart from localStorage:', error);
+    }
   };
   
   const value = {
