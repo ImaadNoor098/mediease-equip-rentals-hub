@@ -22,19 +22,35 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (success) {
+      const result = await login(email, password);
+      
+      if (result.success) {
         toast({
           title: "Login successful",
           description: "Welcome back!",
         });
         navigate('/');
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid email or password",
-          variant: "destructive",
-        });
+        // Handle different error types
+        if (result.error === 'ACCOUNT_NOT_FOUND') {
+          toast({
+            title: "Account not found",
+            description: "No account found with this email. Please register first.",
+            variant: "destructive",
+          });
+        } else if (result.error === 'WRONG_CREDENTIALS') {
+          toast({
+            title: "Invalid credentials",
+            description: "Wrong email ID or password entered. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Login failed",
+            description: "An error occurred. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       toast({

@@ -12,7 +12,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (userData: RegisterData) => Promise<boolean>;
   logout: () => void;
 };
@@ -37,22 +37,27 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [registeredUsers, setRegisteredUsers] = useState<Map<string, { password: string; userData: User }>>(new Map());
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock login - in real app this would call an API
-    const mockUser = {
-      id: '1',
-      name: 'John Doe',
-      email: email,
-      phone: '+1234567890',
-      address: '123 Main St, City, State'
-    };
-    setUser(mockUser);
-    return true;
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    // Check if user exists in our registered users
+    const userRecord = registeredUsers.get(email);
+    
+    if (!userRecord) {
+      return { success: false, error: 'ACCOUNT_NOT_FOUND' };
+    }
+    
+    if (userRecord.password !== password) {
+      return { success: false, error: 'WRONG_CREDENTIALS' };
+    }
+    
+    // Successful login
+    setUser(userRecord.userData);
+    return { success: true };
   };
 
   const register = async (userData: RegisterData): Promise<boolean> => {
-    // Mock registration - in real app this would call an API
+    // Create new user
     const newUser = {
       id: Date.now().toString(),
       name: userData.name,
@@ -60,6 +65,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       phone: userData.phone,
       address: userData.address
     };
+    
+    // Store user in our mock database
+    registeredUsers.set(userData.email, {
+      password: userData.password,
+      userData: newUser
+    });
+    
     setUser(newUser);
     return true;
   };
