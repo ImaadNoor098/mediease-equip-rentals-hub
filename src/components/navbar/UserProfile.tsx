@@ -27,6 +27,10 @@ const UserProfile = () => {
     navigate('/login');
   };
 
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  };
+
   if (!isAuthenticated) {
     return (
       <Button variant="ghost" size="icon" onClick={handleLogin}>
@@ -71,7 +75,7 @@ const UserProfile = () => {
           <div className="flex flex-col space-y-2">
             <EditProfileDialog />
             <OrderHistoryDialog />
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSettingsClick}>
               Settings
             </Button>
             <AlertDialog>
