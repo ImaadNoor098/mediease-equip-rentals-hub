@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Package, ShoppingCart, Clock, Calendar } from 'lucide-react';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 
 interface OrderDetailViewProps {
   order: OrderHistoryItem;

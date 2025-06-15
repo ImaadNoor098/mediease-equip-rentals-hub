@@ -34,13 +34,14 @@ export const useOrderHistoryState = (isOpen: boolean) => {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [isAuthenticated]);
 
-  // Refresh when auth state changes or user changes
+  // Refresh when auth state changes or user order history changes
   useEffect(() => {
-    console.log('useOrderHistoryState: Auth state changed, refreshing orders');
+    console.log('useOrderHistoryState: Auth/user state changed, refreshing orders');
+    console.log('useOrderHistoryState: User order history length:', user?.orderHistory?.length || 0);
     refreshOrders();
-  }, [isAuthenticated, user?.orderHistory?.length]);
+  }, [isAuthenticated, user?.orderHistory?.length, user?.id]);
 
   // Refresh when dialog opens
   useEffect(() => {
@@ -48,7 +49,7 @@ export const useOrderHistoryState = (isOpen: boolean) => {
       console.log('useOrderHistoryState: Dialog opened, force refreshing');
       refreshOrders();
     }
-  }, [isOpen]);
+  }, [isOpen, isAuthenticated]);
 
   // Get current orders - always use fresh data
   const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
@@ -58,7 +59,8 @@ export const useOrderHistoryState = (isOpen: boolean) => {
     isOpen,
     orderCount: orders.length,
     userOrderHistory: user?.orderHistory?.length || 0,
-    guestOrdersLength: guestOrders.length
+    guestOrdersLength: guestOrders.length,
+    userId: user?.id
   });
 
   return {

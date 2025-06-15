@@ -1,7 +1,6 @@
-
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 
 interface UseOrderOperationsProps {
   selectedOrders: Set<string>;

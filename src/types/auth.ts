@@ -13,25 +13,21 @@ export type SavedAddress = {
   isDefault?: boolean;
 };
 
-export type User = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  orderHistory?: OrderHistoryItem[];
-  savedAddresses?: SavedAddress[];
-};
-
 export type OrderHistoryItem = {
   id: string;
   date: string;
   total: number;
   method: string;
   items: Array<{
+    id?: string;
     name: string;
     quantity: number;
     price: number;
+    purchaseType?: 'rent' | 'buy';
+    image?: string;
+    retailPrice?: number;
+    description?: string;
+    category?: string;
   }>;
   shippingAddress?: {
     fullName: string;
@@ -40,8 +36,20 @@ export type OrderHistoryItem = {
     city: string;
     state: string;
     pincode: string;
+    mobileNumber?: string;
   };
   savings: number;
+  status?: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+};
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  orderHistory?: OrderHistoryItem[];
+  savedAddresses?: SavedAddress[];
 };
 
 export type RegisterData = {

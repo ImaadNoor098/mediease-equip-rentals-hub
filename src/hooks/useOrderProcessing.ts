@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { OrderHistoryItem } from '@/types/auth';
 
 interface OrderProcessingProps {
   method: string;
@@ -41,7 +42,7 @@ export const useOrderProcessing = ({
     console.log('useOrderProcessing: Processing order with cart:', cart.items);
     console.log('useOrderProcessing: User context:', { isAuthenticated, userId: user?.id });
 
-    // Create order items with complete data
+    // Create order items with complete data structure matching OrderHistoryItem
     const orderItems = cart.items.map((item, index) => ({
       id: item.productId || item.id || `item_${Date.now()}_${index}`,
       name: item.name || 'Unknown Product',
@@ -63,19 +64,27 @@ export const useOrderProcessing = ({
       return sum;
     }, 0);
 
-    // Create order object
-    const newOrder = {
+    // Create order object with proper structure
+    const newOrder: OrderHistoryItem = {
       id: paymentId || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       date: new Date().toISOString(),
       total: total || calculatedTotal,
       method: method || 'Cash on Delivery',
       items: orderItems,
-      shippingAddress: shippingAddress,
+      shippingAddress: shippingAddress ? {
+        fullName: shippingAddress.fullName || '',
+        addressLine1: shippingAddress.addressLine1 || '',
+        addressLine2: shippingAddress.addressLine2,
+        city: shippingAddress.city || '',
+        state: shippingAddress.state || '',
+        pincode: shippingAddress.pincode || '',
+        mobileNumber: shippingAddress.mobileNumber
+      } : undefined,
       savings: savings || calculatedSavings,
-      status: 'confirmed' as const
+      status: 'confirmed'
     };
 
-    console.log('useOrderProcessing: Creating order:', newOrder);
+    console.log('useOrderProcessing: Creating order with structure:', newOrder);
 
     // Mark as processed immediately to prevent duplicates
     setOrderProcessed(true);
@@ -84,6 +93,7 @@ export const useOrderProcessing = ({
     if (isAuthenticated && user) {
       console.log('useOrderProcessing: Saving order for authenticated user');
       addOrder(newOrder);
+      console.log('useOrderProcessing: Order added to user history');
     } else {
       console.log('useOrderProcessing: Saving order for guest user');
       try {
@@ -98,7 +108,7 @@ export const useOrderProcessing = ({
           oldValue: JSON.stringify(existingOrders)
         }));
         
-        console.log('useOrderProcessing: Guest order saved successfully');
+        console.log('useOrderProcessing: Guest order saved successfully. Total orders:', updatedOrders.length);
       } catch (error) {
         console.error('useOrderProcessing: Error saving guest order:', error);
       }
@@ -106,9 +116,9 @@ export const useOrderProcessing = ({
 
     // Clear cart after successful order save
     clearCart();
-    console.log('useOrderProcessing: Order processing completed');
+    console.log('useOrderProcessing: Order processing completed, cart cleared');
     
-  }, []); // Empty dependency array to run only once
+  }, [cart.items, isAuthenticated, user, orderProcessed]); // Added dependencies to ensure proper re-execution
 
   return { orderProcessed };
 };
