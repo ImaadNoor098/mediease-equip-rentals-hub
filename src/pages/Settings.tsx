@@ -78,7 +78,7 @@ const Settings: React.FC = () => {
                   <Package size={24} />
                 </div>
                 <span className="text-sm font-semibold text-green-700">Check Orders</span>
-                <span className="text-xs text-green-600 font-bold bg-green-200 px-2 py-1 rounded-full">{user?.orderHistory?.length || 0} orders</span>
+                <span className="text-xs text-green-600 font-bold">{user?.orderHistory?.length || 0} orders</span>
               </div>
             </div>
           </div>
