@@ -20,35 +20,60 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [guestOrders, setGuestOrders] = useState<OrderHistoryItem[]>([]);
 
-  // Load guest orders from localStorage
+  // Function to reload guest orders from localStorage
+  const reloadGuestOrders = () => {
+    try {
+      const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+      console.log('OrderHistoryDialog: Reloaded guest orders:', storedGuestOrders);
+      setGuestOrders(storedGuestOrders);
+      return storedGuestOrders;
+    } catch (error) {
+      console.error('OrderHistoryDialog: Error loading guest orders:', error);
+      return [];
+    }
+  };
+
+  // Load orders when component mounts or auth state changes
   useEffect(() => {
-    console.log('OrderHistoryDialog: Loading orders, isAuthenticated:', isAuthenticated);
+    console.log('OrderHistoryDialog: Auth state changed:', { isAuthenticated, userOrderCount: user?.orderHistory?.length });
     
     if (!isAuthenticated) {
-      const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
-      console.log('OrderHistoryDialog: Loaded guest orders from localStorage:', storedGuestOrders);
-      setGuestOrders(storedGuestOrders);
+      const loadedOrders = reloadGuestOrders();
+      console.log('OrderHistoryDialog: Guest orders loaded on mount:', loadedOrders);
     } else {
-      console.log('OrderHistoryDialog: User authenticated, using user orders:', user?.orderHistory);
+      console.log('OrderHistoryDialog: User authenticated, orders from context:', user?.orderHistory);
     }
   }, [isAuthenticated, user?.orderHistory]);
 
-  // Also reload when dialog opens
+  // Reload guest orders when dialog opens
   useEffect(() => {
-    if (isOpen && !isAuthenticated) {
-      const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
-      console.log('OrderHistoryDialog: Dialog opened, reloading guest orders:', storedGuestOrders);
-      setGuestOrders(storedGuestOrders);
+    if (isOpen) {
+      console.log('OrderHistoryDialog: Dialog opened, reloading orders');
+      if (!isAuthenticated) {
+        const refreshedOrders = reloadGuestOrders();
+        console.log('OrderHistoryDialog: Refreshed guest orders on dialog open:', refreshedOrders);
+      } else {
+        console.log('OrderHistoryDialog: User orders on dialog open:', user?.orderHistory);
+      }
     }
   }, [isOpen, isAuthenticated]);
 
+  // Get current orders based on authentication status
   const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
 
-  console.log('OrderHistoryDialog: Final orders to display:', orders);
-  console.log('OrderHistoryDialog: Orders count:', orders.length);
+  console.log('OrderHistoryDialog: Current orders to display:', {
+    isAuthenticated,
+    orderCount: orders.length,
+    orders: orders.map(order => ({
+      id: order.id,
+      date: order.date,
+      total: order.total,
+      itemCount: order.items?.length || 0
+    }))
+  });
 
   const handleDeleteOrder = (orderId: string) => {
-    console.log('Deleting single order:', orderId);
+    console.log('OrderHistoryDialog: Deleting order:', orderId);
     
     if (isAuthenticated) {
       deleteOrder(orderId);
@@ -57,6 +82,7 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       const updatedGuestOrders = guestOrders.filter(order => order.id !== orderId);
       setGuestOrders(updatedGuestOrders);
       localStorage.setItem('guestOrders', JSON.stringify(updatedGuestOrders));
+      console.log('OrderHistoryDialog: Updated guest orders after deletion:', updatedGuestOrders);
     }
     
     // Clear selection if the deleted order was selected
@@ -76,7 +102,7 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
   };
 
   const handleBulkDelete = () => {
-    console.log('Bulk deleting selected orders:', Array.from(selectedOrders));
+    console.log('OrderHistoryDialog: Bulk deleting orders:', Array.from(selectedOrders));
     const ordersToDelete = Array.from(selectedOrders);
     
     if (ordersToDelete.length === 0) {
@@ -99,6 +125,7 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       const updatedGuestOrders = guestOrders.filter(order => !ordersToDelete.includes(order.id));
       setGuestOrders(updatedGuestOrders);
       localStorage.setItem('guestOrders', JSON.stringify(updatedGuestOrders));
+      console.log('OrderHistoryDialog: Updated guest orders after bulk deletion:', updatedGuestOrders);
     }
     
     // Clear selections
@@ -123,20 +150,21 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       newSelected.add(orderId);
     }
     setSelectedOrders(newSelected);
-    console.log('Selected orders updated:', Array.from(newSelected));
+    console.log('OrderHistoryDialog: Selected orders updated:', Array.from(newSelected));
   };
 
   const handleSelectAll = () => {
     if (selectedOrders.size === orders.length && orders.length > 0) {
-      console.log('Deselecting all orders');
+      console.log('OrderHistoryDialog: Deselecting all orders');
       setSelectedOrders(new Set());
     } else {
-      console.log('Selecting all orders:', orders.map(order => order.id));
+      console.log('OrderHistoryDialog: Selecting all orders:', orders.map(order => order.id));
       setSelectedOrders(new Set(orders.map(order => order.id)));
     }
   };
 
   const showOrderDetails = (order: OrderHistoryItem) => {
+    console.log('OrderHistoryDialog: Showing details for order:', order.id);
     setSelectedOrder(order);
   };
 
