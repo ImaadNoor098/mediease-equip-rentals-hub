@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
@@ -24,7 +25,7 @@ const PaymentSuccess: React.FC = () => {
   
   // Clear cart and save order on successful payment - only once
   useEffect(() => {
-    if (orderSaved) return; // Prevent duplicate order saving
+    if (orderSaved) return;
     
     console.log('PaymentSuccess: Authentication status:', { isAuthenticated, user: user?.email });
     console.log('PaymentSuccess: Cart items with full details:', cart.items);
@@ -32,8 +33,8 @@ const PaymentSuccess: React.FC = () => {
     
     // Create order from cart items or from payment data
     let orderItems = [];
-    let orderTotal = total || 0;
-    let orderSavings = savings || 0;
+    let orderTotal = 0;
+    let orderSavings = 0;
     
     // If we have cart items, use them and calculate proper totals
     if (cart.items.length > 0) {
@@ -53,52 +54,54 @@ const PaymentSuccess: React.FC = () => {
         };
       });
       
-      // Calculate total from cart items
-      orderTotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      // Calculate total from cart items - this is the authoritative source
+      orderTotal = cart.items.reduce((sum, item) => {
+        const itemTotal = (item.price || 0) * (item.quantity || 1);
+        console.log(`PaymentSuccess: Item ${item.name}: price=${item.price} * quantity=${item.quantity} = ${itemTotal}`);
+        return sum + itemTotal;
+      }, 0);
       
       // Calculate savings from cart items
       orderSavings = cart.items.reduce((sum, item) => {
         if (item.retailPrice && item.retailPrice > item.price) {
-          return sum + ((item.retailPrice - item.price) * item.quantity);
+          const itemSavings = (item.retailPrice - item.price) * item.quantity;
+          console.log(`PaymentSuccess: Item ${item.name} savings: ${itemSavings}`);
+          return sum + itemSavings;
         }
         return sum;
       }, 0);
       
-      console.log('PaymentSuccess: Final order calculation:', {
+      console.log('PaymentSuccess: Final calculated totals:', {
         orderTotal,
         orderSavings,
-        itemCount: orderItems.length,
-        orderItems: orderItems.map(item => ({
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          purchaseType: item.purchaseType,
-          hasImage: !!item.image
-        }))
+        itemCount: orderItems.length
       });
-    } else {
-      console.log('PaymentSuccess: No cart items, creating order from payment data');
-      // If no cart items but we have payment data, create a placeholder
-      if (total > 0) {
-        orderItems = [{
-          id: `order_item_${Date.now()}`,
-          name: 'Order Item',
-          quantity: 1,
-          price: total,
-          purchaseType: 'buy',
-          description: 'Order processed successfully',
-          category: 'Medical Equipment',
-          image: '',
-          retailPrice: 0
-        }];
-      }
+    } else if (total > 0) {
+      // Fallback to payment data if no cart items
+      console.log('PaymentSuccess: No cart items, using payment data');
+      orderTotal = total;
+      orderSavings = savings || 0;
+      orderItems = [{
+        id: `order_item_${Date.now()}`,
+        name: 'Order Item',
+        quantity: 1,
+        price: total,
+        purchaseType: 'buy',
+        description: 'Order processed successfully',
+        category: 'Medical Equipment',
+        image: '',
+        retailPrice: 0
+      }];
     }
     
     // Only create order if we have items or a total amount
-    if (orderItems.length > 0 || orderTotal > 0) {
+    if (orderItems.length > 0 && orderTotal > 0) {
+      // Create timestamp with both date and time
+      const orderTimestamp = new Date().toISOString();
+      
       const order = {
         id: paymentId || `order_${Date.now()}`,
-        date: new Date().toISOString(),
+        date: orderTimestamp, // Store full ISO timestamp
         total: orderTotal,
         method: method || 'Online Payment',
         items: orderItems,
@@ -120,25 +123,23 @@ const PaymentSuccess: React.FC = () => {
         itemCount: order.items.length,
         total: order.total,
         savings: order.savings,
+        timestamp: order.date,
         itemDetails: order.items.map(item => ({
           id: item.id,
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          purchaseType: item.purchaseType,
-          image: item.image,
-          category: item.category
+          purchaseType: item.purchaseType
         }))
       });
       
-      // Always try to save the order
+      // Save the order
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: User is authenticated, saving order to history');
         addOrder(order);
         console.log('PaymentSuccess: Order successfully added to user history');
       } else {
         console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
-        // Store order temporarily in localStorage for guest users
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
         localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
@@ -147,18 +148,18 @@ const PaymentSuccess: React.FC = () => {
       
       setOrderSaved(true);
       
-      // Clear cart only after order is saved
+      // Clear cart after order is saved
       if (cart.items.length > 0) {
         console.log('PaymentSuccess: Clearing cart after successful order creation');
         clearCart();
       }
     } else {
-      console.log('PaymentSuccess: No items or total amount, not creating order');
+      console.log('PaymentSuccess: No valid order data to save');
       setOrderSaved(true);
     }
   }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart, isAuthenticated, user]);
   
-  // Separate effect for countdown to avoid interference
+  // Separate effect for countdown
   useEffect(() => {
     const timer = setInterval(() => {
       setCountdown(prev => {
@@ -173,6 +174,15 @@ const PaymentSuccess: React.FC = () => {
     
     return () => clearInterval(timer);
   }, [navigate]);
+
+  // Calculate display totals for UI
+  const displayTotal = total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const displaySavings = savings || cart.items.reduce((sum, item) => {
+    if (item.retailPrice && item.retailPrice > item.price) {
+      return sum + ((item.retailPrice - item.price) * item.quantity);
+    }
+    return sum;
+  }, 0);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-mediease-50 px-4">
@@ -199,22 +209,17 @@ const PaymentSuccess: React.FC = () => {
           </div>
         )}
         
-        {(savings > 0 || cart.items.some(item => item.retailPrice && item.retailPrice > item.price)) && (
+        {displaySavings > 0 && (
           <div className="bg-green-50 rounded-lg p-4 mb-6">
             <p className="font-medium text-green-800">
-              You saved ₹{(savings || cart.items.reduce((sum, item) => {
-                if (item.retailPrice && item.retailPrice > item.price) {
-                  return sum + ((item.retailPrice - item.price) * item.quantity);
-                }
-                return sum;
-              }, 0)).toFixed(2)} on this order!
+              You saved ₹{displaySavings.toFixed(2)} on this order!
             </p>
           </div>
         )}
         
         <div className="mb-8">
           <p className="text-sm text-gray-500">Order Total</p>
-          <p className="text-2xl font-bold text-mediease-900">₹{(total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}</p>
+          <p className="text-2xl font-bold text-mediease-900">₹{displayTotal.toFixed(2)}</p>
         </div>
 
         {shippingAddress && (

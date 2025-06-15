@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Package, ShoppingCart, Info } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, ShoppingCart, Clock, Calendar } from 'lucide-react';
 import { OrderHistoryItem } from '@/types/order';
 
 interface OrderDetailViewProps {
@@ -10,6 +11,25 @@ interface OrderDetailViewProps {
 
 const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }) => {
   const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const dateStr = date.toLocaleDateString('en-IN', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+    const timeStr = date.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    return { dateStr, timeStr };
+  };
+
+  const { dateStr, timeStr } = formatDateTime(order.date);
   
   console.log('OrderDetailView: Displaying order:', order);
   console.log('OrderDetailView: Order items with full details:', order.items);
@@ -32,9 +52,18 @@ const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }
                 <span className="text-gray-600">Order ID:</span>
                 <span className="font-medium">#{order.id}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Date:</span>
-                <span className="font-medium">{new Date(order.date).toLocaleDateString()}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Order Date:</span>
+                <div className="text-right">
+                  <div className="flex items-center gap-1 justify-end">
+                    <Calendar className="h-3 w-3 text-gray-400" />
+                    <span className="font-medium">{dateStr}</span>
+                  </div>
+                  <div className="flex items-center gap-1 justify-end mt-1">
+                    <Clock className="h-3 w-3 text-gray-400" />
+                    <span className="text-xs text-gray-500">{timeStr}</span>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Payment Method:</span>
@@ -117,7 +146,6 @@ const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-lg border-2 border-green-100"
                             onError={(e) => {
-                              // Fallback to package icon if image fails to load
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               target.nextElementSibling?.classList.remove('hidden');
