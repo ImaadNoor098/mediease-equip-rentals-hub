@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ interface ChangePasswordDialogProps {
 }
 
 const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ children }) => {
-  const { user, updateUserPassword } = useAuth();
+  const { user, updateUserPassword, validateCurrentPassword } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
@@ -71,6 +70,8 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ children })
       confirmPassword: ''
     });
 
+    console.log('Starting password change process');
+
     // Validate current password
     if (!formData.currentPassword) {
       setErrors(prev => ({ ...prev, currentPassword: 'Current password is required' }));
@@ -79,9 +80,18 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ children })
     }
 
     // Check if current password is correct
-    const isCurrentPasswordValid = await updateUserPassword?.validateCurrentPassword?.(formData.currentPassword);
-    if (!isCurrentPasswordValid) {
-      setErrors(prev => ({ ...prev, currentPassword: 'Current password is incorrect' }));
+    try {
+      const isCurrentPasswordValid = await validateCurrentPassword(formData.currentPassword);
+      console.log('Current password validation result:', isCurrentPasswordValid);
+      
+      if (!isCurrentPasswordValid) {
+        setErrors(prev => ({ ...prev, currentPassword: 'Current password is incorrect' }));
+        setIsLoading(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Error validating current password:', error);
+      setErrors(prev => ({ ...prev, currentPassword: 'Error validating current password' }));
       setIsLoading(false);
       return;
     }
@@ -110,7 +120,7 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ children })
 
     try {
       // Update password
-      await updateUserPassword?.(formData.newPassword);
+      await updateUserPassword(formData.newPassword);
       
       toast({
         title: "Password Changed",
@@ -125,6 +135,7 @@ const ChangePasswordDialog: React.FC<ChangePasswordDialogProps> = ({ children })
       });
       setIsOpen(false);
     } catch (error) {
+      console.error('Error updating password:', error);
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",

@@ -357,15 +357,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const validateCurrentPassword = async (password: string): Promise<boolean> => {
-    if (!user) return false;
+    if (!user) {
+      console.log('No user logged in for password validation');
+      return false;
+    }
     
     const userRecord = registeredUsers.get(user.email);
-    return userRecord?.password === password;
+    console.log('Validating password for user:', user.email);
+    console.log('User record exists:', !!userRecord);
+    console.log('Stored password:', userRecord?.password);
+    console.log('Entered password:', password);
+    
+    const isValid = userRecord?.password === password;
+    console.log('Password validation result:', isValid);
+    return isValid;
   };
 
   const updateUserPassword = async (newPassword: string): Promise<void> => {
-    if (!user) throw new Error('No user logged in');
+    if (!user) {
+      console.log('No user logged in for password update');
+      throw new Error('No user logged in');
+    }
 
+    console.log('Updating password for user:', user.email);
+    
     // Update password in registered users
     const userRecord = registeredUsers.get(user.email);
     if (userRecord) {
@@ -375,6 +390,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         password: newPassword
       });
       setRegisteredUsers(newRegisteredUsers);
+      console.log('Password updated successfully');
+    } else {
+      console.error('User record not found for password update');
+      throw new Error('User record not found');
     }
   };
 
