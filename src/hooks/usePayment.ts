@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
@@ -36,6 +35,20 @@ export const usePayment = (shippingAddress?: AddressFormData) => {
       document.body.removeChild(script);
     };
   }, []);
+
+  // Custom payment method setter that shows apology for online payments
+  const handlePaymentMethodChange = (value: string) => {
+    if (value === 'razorpay' || value === 'upi') {
+      toast({
+        title: "Online Payments Temporarily Unavailable",
+        description: "We apologize for the inconvenience. Online payments will be enabled as soon as possible. Please select Cash on Delivery for now.",
+        variant: "destructive"
+      });
+      // Don't set the payment method, keep it empty or set to previous value
+      return;
+    }
+    setPaymentMethod(value);
+  };
 
   const calculateSubtotal = () => {
     return cart.items.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -160,7 +173,7 @@ export const usePayment = (shippingAddress?: AddressFormData) => {
 
   return {
     paymentMethod,
-    setPaymentMethod,
+    setPaymentMethod: handlePaymentMethodChange,
     loading,
     subtotal,
     tax,
