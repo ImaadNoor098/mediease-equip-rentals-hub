@@ -1,21 +1,70 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { User, ShoppingCart } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { User, ShoppingCart, Home } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 
 const BottomNavigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { cart } = useCart();
   const { isAuthenticated } = useAuth();
+  const [lastVisitedPage, setLastVisitedPage] = useState('/');
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [clickCount, setClickCount] = useState(0);
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Track last visited page (excluding current home page)
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setLastVisitedPage(location.pathname);
+    }
+  }, [location.pathname]);
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    setClickCount(prev => prev + 1);
+
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+
+    clickTimeoutRef.current = setTimeout(() => {
+      if (clickCount === 0) {
+        // Single click - go to last visited page or home if already on home
+        if (location.pathname === '/') {
+          navigate(lastVisitedPage);
+        } else {
+          navigate(lastVisitedPage);
+        }
+      } else if (clickCount === 1) {
+        // Double click - always go to home
+        navigate('/');
+      }
+      setClickCount(0);
+    }, 300);
+  };
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-40">
       <div className="container mx-auto px-4">
-        <div className="flex justify-center space-x-16 py-3">
+        <div className="flex justify-center space-x-12 py-3">
+          {/* Home Button */}
+          <button
+            onClick={handleHomeClick}
+            className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
+              isActive('/') 
+                ? 'text-primary bg-primary/10' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Home size={24} />
+            <span className="text-xs font-medium">Home</span>
+          </button>
+
           {/* Profile Button */}
           <Link 
             to={isAuthenticated ? "/settings" : "/login"}
