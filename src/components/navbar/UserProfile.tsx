@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { User } from 'lucide-react';
+import { User, Edit3, Package } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -48,7 +48,31 @@ const UserProfile = () => {
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
-          <div className="flex items-center space-x-4">
+          {/* Quick Action Boxes */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-md transition-all cursor-pointer group">
+              <EditProfileDialog />
+              <div className="flex flex-col items-center space-y-2 pointer-events-none">
+                <div className="p-3 bg-blue-500 text-white rounded-full group-hover:scale-110 transition-transform">
+                  <Edit3 size={20} />
+                </div>
+                <span className="text-sm font-medium text-blue-700">Edit Profile</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-md transition-all cursor-pointer group">
+              <OrderHistoryDialog />
+              <div className="flex flex-col items-center space-y-2 pointer-events-none">
+                <div className="p-3 bg-green-500 text-white rounded-full group-hover:scale-110 transition-transform">
+                  <Package size={20} />
+                </div>
+                <span className="text-sm font-medium text-green-700">Orders ({user?.orderHistory?.length || 0})</span>
+              </div>
+            </div>
+          </div>
+
+          {/* User Info Section */}
+          <div className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
             <Avatar className="h-12 w-12">
               <AvatarImage src="" alt={user?.name} />
               <AvatarFallback className="bg-primary text-primary-foreground">
@@ -73,8 +97,6 @@ const UserProfile = () => {
           </div>
 
           <div className="flex flex-col space-y-2">
-            <EditProfileDialog />
-            <OrderHistoryDialog />
             <Button variant="outline" size="sm" onClick={handleSettingsClick}>
               Settings
             </Button>
