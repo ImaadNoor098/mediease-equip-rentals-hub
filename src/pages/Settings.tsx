@@ -73,9 +73,13 @@ const Settings: React.FC = () => {
               </div>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-red-700 hover:border-red-800 animate-pulse hover:animate-none flex items-center gap-2"
+                  >
                     <LogOut size={16} />
-                    Log Out
+                    🚪 Log Out
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
