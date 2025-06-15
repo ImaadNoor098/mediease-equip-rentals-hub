@@ -16,7 +16,7 @@ const PaymentSuccess: React.FC = () => {
   const [orderProcessed, setOrderProcessed] = useState(false);
   
   const { method, total, savings, paymentId, shippingAddress } = location.state || { 
-    method: 'Online Payment', 
+    method: 'Cash on Delivery', 
     total: 0,
     savings: 0,
     paymentId: null,
@@ -30,33 +30,23 @@ const PaymentSuccess: React.FC = () => {
       return;
     }
 
-    console.log('PaymentSuccess: Processing new order');
-    console.log('PaymentSuccess: Cart state:', cart);
-    console.log('PaymentSuccess: Auth state:', { isAuthenticated, userEmail: user?.email });
-    console.log('PaymentSuccess: Payment state:', { method, total, savings, paymentId, shippingAddress });
+    console.log('PaymentSuccess: Starting order processing');
+    console.log('PaymentSuccess: Cart items:', cart.items);
+    console.log('PaymentSuccess: Auth status:', { isAuthenticated, hasUser: !!user });
 
     // Validate cart has items
     if (!cart.items || cart.items.length === 0) {
-      console.error('PaymentSuccess: No cart items to process');
+      console.error('PaymentSuccess: No cart items found, cannot create order');
       setOrderProcessed(true);
       return;
     }
 
     // Create order items with complete data
     const orderItems = cart.items.map((item, index) => {
-      console.log(`PaymentSuccess: Processing cart item ${index + 1}:`, {
-        id: item.id,
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        retailPrice: item.retailPrice,
-        purchaseType: item.purchaseType
-      });
-
+      console.log(`PaymentSuccess: Processing item ${index + 1}:`, item);
+      
       return {
-        id: item.productId || item.id || `product_${Date.now()}_${index}`,
+        id: item.productId || item.id || `item_${Date.now()}_${index}`,
         name: item.name || 'Unknown Product',
         quantity: item.quantity || 1,
         price: item.price || 0,
@@ -68,76 +58,57 @@ const PaymentSuccess: React.FC = () => {
       };
     });
 
-    // Calculate accurate totals
-    const calculatedTotal = cart.items.reduce((sum, item) => {
-      const itemTotal = (item.price || 0) * (item.quantity || 1);
-      console.log(`PaymentSuccess: Item "${item.name}" calculation: ₹${item.price} × ${item.quantity} = ₹${itemTotal}`);
-      return sum + itemTotal;
-    }, 0);
-
-    const calculatedSavings = cart.items.reduce((sum, item) => {
+    // Calculate totals
+    const calculatedTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const calculatedSavings = orderItems.reduce((sum, item) => {
       if (item.retailPrice && item.retailPrice > item.price) {
-        const itemSavings = (item.retailPrice - item.price) * item.quantity;
-        console.log(`PaymentSuccess: Item "${item.name}" savings: ₹${itemSavings}`);
-        return sum + itemSavings;
+        return sum + ((item.retailPrice - item.price) * item.quantity);
       }
       return sum;
     }, 0);
 
-    console.log('PaymentSuccess: Final calculations:', {
-      calculatedTotal,
-      calculatedSavings,
-      itemCount: orderItems.length
-    });
-
-    // Create comprehensive order object
+    // Create order object
     const newOrder = {
       id: paymentId || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       date: new Date().toISOString(),
-      total: calculatedTotal,
+      total: total || calculatedTotal,
       method: method || 'Cash on Delivery',
       items: orderItems,
-      shippingAddress: shippingAddress ? {
-        fullName: shippingAddress.fullName || '',
-        addressLine1: shippingAddress.addressLine1 || '',
-        addressLine2: shippingAddress.addressLine2 || '',
-        city: shippingAddress.city || '',
-        state: shippingAddress.state || '',
-        pincode: shippingAddress.pincode || '',
-        mobileNumber: shippingAddress.mobileNumber || ''
-      } : undefined,
-      savings: calculatedSavings,
+      shippingAddress: shippingAddress,
+      savings: savings || calculatedSavings,
       status: 'confirmed'
     };
 
-    console.log('PaymentSuccess: Complete order object created:', newOrder);
+    console.log('PaymentSuccess: Created order object:', newOrder);
 
-    // Save order to appropriate storage
+    // Save order
     try {
       if (isAuthenticated && user) {
-        console.log('PaymentSuccess: Saving order for authenticated user');
+        console.log('PaymentSuccess: Adding order for authenticated user');
         addOrder(newOrder);
         console.log('PaymentSuccess: Order added to user context');
+        
+        // Force a small delay to ensure state updates
+        setTimeout(() => {
+          console.log('PaymentSuccess: Current user order history after addition:', user.orderHistory);
+        }, 100);
       } else {
         console.log('PaymentSuccess: Saving order for guest user');
-        const existingGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
-        const updatedGuestOrders = [...existingGuestOrders, newOrder];
-        localStorage.setItem('guestOrders', JSON.stringify(updatedGuestOrders));
-        console.log('PaymentSuccess: Guest orders saved to localStorage:', updatedGuestOrders);
+        const existingOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+        const updatedOrders = [newOrder, ...existingOrders];
+        localStorage.setItem('guestOrders', JSON.stringify(updatedOrders));
+        console.log('PaymentSuccess: Guest orders saved:', updatedOrders);
       }
 
-      // Mark order as processed
+      // Mark as processed and clear cart
       setOrderProcessed(true);
-      
-      // Clear cart after successful order save
-      console.log('PaymentSuccess: Clearing cart after successful order save');
       clearCart();
-      
       console.log('PaymentSuccess: Order processing completed successfully');
+      
     } catch (error) {
       console.error('PaymentSuccess: Error saving order:', error);
     }
-  }, [cart, addOrder, isAuthenticated, user, method, paymentId, shippingAddress, orderProcessed, clearCart]);
+  }, [cart.items, addOrder, isAuthenticated, user, method, total, savings, paymentId, shippingAddress, orderProcessed, clearCart]);
   
   // Countdown timer effect
   useEffect(() => {
@@ -155,7 +126,7 @@ const PaymentSuccess: React.FC = () => {
     return () => clearInterval(timer);
   }, [navigate]);
 
-  // Calculate display values for UI
+  // Calculate display values
   const displayTotal = total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const displaySavings = savings || cart.items.reduce((sum, item) => {
     if (item.retailPrice && item.retailPrice > item.price) {
