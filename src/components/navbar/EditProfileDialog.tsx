@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,10 +11,21 @@ const EditProfileDialog = () => {
   const { user, updateUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    phone: user?.phone || '',
-    address: user?.address || ''
+    name: '',
+    phone: '',
+    address: ''
   });
+
+  // Initialize form data when dialog opens or user data changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      });
+    }
+  }, [user, isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,20 +56,21 @@ const EditProfileDialog = () => {
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: user?.name || '',
-      phone: user?.phone || '',
-      address: user?.address || ''
-    });
+    // Reset form data to current user data
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        phone: user.phone || '',
+        address: user.address || ''
+      });
+    }
     setIsOpen(false);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Edit Profile
-        </Button>
+        <div className="absolute inset-0 cursor-pointer" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -113,3 +125,4 @@ const EditProfileDialog = () => {
 };
 
 export default EditProfileDialog;
+

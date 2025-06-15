@@ -96,16 +96,6 @@ const Settings: React.FC = () => {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="font-medium">Profile Information</h3>
-                    <p className="text-sm text-muted-foreground">Update your personal details</p>
-                  </div>
-                  <Button variant="outline" onClick={() => navigate('/')}>
-                    Edit Profile
-                  </Button>
-                </div>
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div>
                     <h3 className="font-medium">Email</h3>
                     <p className="text-sm text-muted-foreground">{user?.email}</p>
                   </div>
@@ -274,3 +264,4 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
+
