@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -78,8 +77,8 @@ const Settings: React.FC = () => {
                 <div className="p-4 bg-green-500 text-white rounded-full group-hover:scale-110 transition-transform">
                   <Package size={24} />
                 </div>
-                <span className="text-sm font-semibold text-green-700">Order History</span>
-                <span className="text-xs text-green-600">{user?.orderHistory?.length || 0} orders</span>
+                <span className="text-sm font-semibold text-green-700">Check Orders</span>
+                <span className="text-xs text-green-600 font-bold bg-green-200 px-2 py-1 rounded-full">{user?.orderHistory?.length || 0} orders</span>
               </div>
             </div>
           </div>
@@ -264,4 +263,3 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
-
