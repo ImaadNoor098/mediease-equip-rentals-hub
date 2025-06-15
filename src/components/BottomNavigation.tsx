@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, ShoppingCart, Home } from 'lucide-react';
+import { User, ShoppingCart, Home, BriefcaseMedical } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 
@@ -36,7 +36,7 @@ const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 shadow-lg">
       <div className="container mx-auto px-4">
-        <div className="flex justify-center space-x-12 py-3">
+        <div className="flex justify-center space-x-8 py-3">
           {/* Home Button */}
           <button
             onClick={handleHomeClick}
@@ -49,6 +49,19 @@ const BottomNavigation = () => {
             <Home size={24} />
             <span className="text-xs font-medium">Home</span>
           </button>
+
+          {/* Products Button */}
+          <Link 
+            to="/products"
+            className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
+              isActive('/products') 
+                ? 'text-primary bg-primary/10' 
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <BriefcaseMedical size={24} />
+            <span className="text-xs font-medium">Products</span>
+          </Link>
 
           {/* Profile Button */}
           <Link 
