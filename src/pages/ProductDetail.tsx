@@ -53,7 +53,7 @@ const ProductDetail: React.FC = () => {
   const performAddToCart = () => {
     const price = purchaseType === 'rent' ? product.rentPrice : product.buyPrice;
     
-    addItem({
+    const cartItem = {
       productId: product.id,
       name: product.name,
       image: product.image,
@@ -61,8 +61,12 @@ const ProductDetail: React.FC = () => {
       quantity,
       purchaseType,
       description: product.description,
-      category: product.category
-    });
+      category: product.category,
+      retailPrice: product.buyPrice // Add retail price for savings calculation
+    };
+    
+    console.log('ProductDetail: Adding item to cart:', cartItem);
+    addItem(cartItem);
 
     if (window.animateProductToCart && productImageRef.current) {
       const rect = productImageRef.current.getBoundingClientRect();
@@ -77,6 +81,8 @@ const ProductDetail: React.FC = () => {
       description: `${product.name} (${quantity} ${quantity > 1 ? 'units' : 'unit'}) has been added/updated in your cart.`,
     });
     setQuantity(1);
+    
+    console.log('ProductDetail: Cart after adding item:', cart);
   };
   
   const handleAddToCartAttempt = () => {

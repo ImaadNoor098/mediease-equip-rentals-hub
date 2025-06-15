@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -10,19 +10,39 @@ import OrderListView from './OrderListView';
 import OrderDetailView from './OrderDetailView';
 
 const OrderHistoryDialog = () => {
-  const { user, deleteOrder, bulkDeleteOrders } = useAuth();
+  const { user, deleteOrder, bulkDeleteOrders, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderHistoryItem | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [guestOrders, setGuestOrders] = useState<OrderHistoryItem[]>([]);
 
-  const orders = user?.orderHistory || [];
+  // Load guest orders from localStorage
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+      setGuestOrders(storedGuestOrders);
+      console.log('OrderHistoryDialog: Loaded guest orders:', storedGuestOrders);
+    }
+  }, [isAuthenticated]);
+
+  const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
 
   console.log('OrderHistoryDialog: User:', user);
   console.log('OrderHistoryDialog: Orders:', orders);
+  console.log('OrderHistoryDialog: Is authenticated:', isAuthenticated);
 
   const handleDeleteOrder = (orderId: string) => {
     console.log('Deleting single order:', orderId);
-    deleteOrder(orderId);
+    
+    if (isAuthenticated) {
+      deleteOrder(orderId);
+    } else {
+      // Delete from guest orders
+      const updatedGuestOrders = guestOrders.filter(order => order.id !== orderId);
+      setGuestOrders(updatedGuestOrders);
+      localStorage.setItem('guestOrders', JSON.stringify(updatedGuestOrders));
+    }
+    
     // Clear selection if the deleted order was selected
     if (selectedOrders.has(orderId)) {
       const newSelected = new Set(selectedOrders);
@@ -55,8 +75,15 @@ const OrderHistoryDialog = () => {
     // Check if we're viewing a deleted order before clearing selections
     const isViewingDeletedOrder = selectedOrder && selectedOrders.has(selectedOrder.id);
     
-    // Use bulk delete function
-    bulkDeleteOrders(ordersToDelete);
+    if (isAuthenticated) {
+      // Use bulk delete function for authenticated users
+      bulkDeleteOrders(ordersToDelete);
+    } else {
+      // Delete from guest orders
+      const updatedGuestOrders = guestOrders.filter(order => !ordersToDelete.includes(order.id));
+      setGuestOrders(updatedGuestOrders);
+      localStorage.setItem('guestOrders', JSON.stringify(updatedGuestOrders));
+    }
     
     // Clear selections
     setSelectedOrders(new Set());
@@ -121,6 +148,11 @@ const OrderHistoryDialog = () => {
         <DialogHeader>
           <DialogTitle>
             {selectedOrder ? `Order Details - #${selectedOrder.id}` : 'Order History'}
+            {!isAuthenticated && (
+              <span className="text-sm font-normal text-orange-600 ml-2">
+                (Guest Orders - Create an account to save permanently)
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
         

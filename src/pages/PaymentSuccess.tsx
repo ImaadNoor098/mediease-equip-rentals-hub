@@ -31,24 +31,49 @@ const PaymentSuccess: React.FC = () => {
     console.log('PaymentSuccess: Cart items:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
-    // Only save the order if we have actual cart items
-    if (cart.items.length > 0 && !orderSaved) {
+    // Create order from cart items or from payment data
+    let orderItems = [];
+    let orderTotal = total || 0;
+    
+    // If we have cart items, use them
+    if (cart.items.length > 0) {
+      console.log('PaymentSuccess: Using cart items for order');
+      orderItems = cart.items.map(item => ({
+        id: item.productId || `item_${Date.now()}_${Math.random()}`,
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+        purchaseType: item.purchaseType || 'buy',
+        image: item.image,
+        retailPrice: item.retailPrice,
+        description: item.description || '',
+        category: item.category || 'Medical Equipment'
+      }));
+      orderTotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    } else {
+      console.log('PaymentSuccess: No cart items, creating order from payment data');
+      // If no cart items but we have payment data, create a placeholder
+      if (total > 0) {
+        orderItems = [{
+          id: `order_item_${Date.now()}`,
+          name: 'Order Item',
+          quantity: 1,
+          price: total,
+          purchaseType: 'buy',
+          description: 'Order processed successfully',
+          category: 'Medical Equipment'
+        }];
+      }
+    }
+    
+    // Only create order if we have items or a total amount
+    if (orderItems.length > 0 || orderTotal > 0) {
       const order = {
         id: paymentId || `order_${Date.now()}`,
         date: new Date().toISOString(),
-        total: total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        total: orderTotal,
         method: method || 'Online Payment',
-        items: cart.items.map(item => ({
-          id: item.id || `item_${Date.now()}_${Math.random()}`,
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          purchaseType: item.purchaseType || 'buy',
-          image: item.image,
-          retailPrice: item.retailPrice,
-          description: item.description || '',
-          category: item.category || 'Medical Equipment'
-        })),
+        items: orderItems,
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
           addressLine1: shippingAddress.addressLine1,
@@ -64,12 +89,13 @@ const PaymentSuccess: React.FC = () => {
       
       console.log('PaymentSuccess: Creating order:', order);
       
+      // Always try to save the order
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: User is authenticated, saving order to history');
         addOrder(order);
         console.log('PaymentSuccess: Order added to user history');
       } else {
-        console.log('PaymentSuccess: User is not authenticated, order will not be saved to history');
+        console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
         // Store order temporarily in localStorage for guest users
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
@@ -78,11 +104,14 @@ const PaymentSuccess: React.FC = () => {
       }
       
       setOrderSaved(true);
-      clearCart();
-      console.log('PaymentSuccess: Cart cleared after order processing');
-    } else if (cart.items.length === 0) {
-      console.log('PaymentSuccess: No items in cart, not creating order');
-      // If no cart items, still mark as saved to prevent re-processing
+      
+      // Clear cart only after order is saved
+      if (cart.items.length > 0) {
+        clearCart();
+        console.log('PaymentSuccess: Cart cleared after order processing');
+      }
+    } else {
+      console.log('PaymentSuccess: No items or total amount, not creating order');
       setOrderSaved(true);
     }
   }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart, isAuthenticated, user]);
@@ -136,7 +165,7 @@ const PaymentSuccess: React.FC = () => {
         
         <div className="mb-8">
           <p className="text-sm text-gray-500">Order Total</p>
-          <p className="text-2xl font-bold text-mediease-900">₹{total.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-mediease-900">₹{(total || 0).toFixed(2)}</p>
         </div>
 
         {shippingAddress && (
