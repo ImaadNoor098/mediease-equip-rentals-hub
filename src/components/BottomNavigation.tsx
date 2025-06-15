@@ -11,37 +11,18 @@ const BottomNavigation = () => {
   const { cart } = useCart();
   const { isAuthenticated } = useAuth();
   const [lastVisitedPage, setLastVisitedPage] = useState('/');
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const [clickCount, setClickCount] = useState(0);
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Track last visited page (excluding current home page)
+  // Track last visited page
   useEffect(() => {
-    if (location.pathname !== '/') {
-      setLastVisitedPage(location.pathname);
-    }
+    setLastVisitedPage(location.pathname);
   }, [location.pathname]);
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    
-    setClickCount(prev => prev + 1);
-
-    if (clickTimeoutRef.current) {
-      clearTimeout(clickTimeoutRef.current);
-    }
-
-    clickTimeoutRef.current = setTimeout(() => {
-      if (clickCount === 0) {
-        // Single click - always go to home page
-        navigate('/');
-      } else if (clickCount === 1) {
-        // Double click - go to last visited page
-        navigate(lastVisitedPage);
-      }
-      setClickCount(0);
-    }, 300);
+    // Navigate to the current page (last visited page)
+    navigate(lastVisitedPage);
   };
 
   return (
