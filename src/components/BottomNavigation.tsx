@@ -11,18 +11,26 @@ const BottomNavigation = () => {
   const { cart } = useCart();
   const { isAuthenticated } = useAuth();
   const [lastVisitedPage, setLastVisitedPage] = useState('/');
+  const previousLocationRef = useRef('/');
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Track last visited page
+  // Track last visited page properly
   useEffect(() => {
-    setLastVisitedPage(location.pathname);
+    if (location.pathname !== previousLocationRef.current) {
+      setLastVisitedPage(previousLocationRef.current);
+      previousLocationRef.current = location.pathname;
+    }
   }, [location.pathname]);
 
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    // Navigate to the current page (last visited page)
-    navigate(lastVisitedPage);
+    // If we're on home page, go to last visited page, otherwise go to home
+    if (location.pathname === '/') {
+      navigate(lastVisitedPage);
+    } else {
+      navigate('/');
+    }
   };
 
   return (
