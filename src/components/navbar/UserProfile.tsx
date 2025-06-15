@@ -102,8 +102,12 @@ const UserProfile = () => {
             </Button>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
-                  Sign Out
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-red-700 hover:border-red-800 animate-pulse hover:animate-none"
+                >
+                  🚪 Sign Out
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
