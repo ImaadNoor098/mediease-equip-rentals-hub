@@ -13,7 +13,6 @@ import ProductHeader from '@/components/product/ProductHeader';
 import PurchaseOptions from '@/components/product/PurchaseOptions';
 import QuantitySelector from '@/components/product/QuantitySelector';
 import ProductDetailTabs from '@/components/product/ProductDetailTabs';
-import AuthPromptDialog from '@/components/AuthPromptDialog';
 import { toast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -31,14 +30,12 @@ const ProductDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { cart, addItem } = useCart();
-  const { isAuthenticated } = useAuth();
   const productImageRef = useRef<HTMLDivElement>(null);
   
   const product = getProductById(id || '');
   const [purchaseType, setPurchaseType] = useState<'rent' | 'buy'>('rent');
   const [quantity, setQuantity] = useState(1);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [existingCartItemInfo, setExistingCartItemInfo] = useState<{ name: string; existingQuantity: number; purchaseType: 'rent' | 'buy', newQuantity: number } | null>(null);
   
   if (!product) {
@@ -62,7 +59,9 @@ const ProductDetail: React.FC = () => {
       image: product.image,
       price,
       quantity,
-      purchaseType
+      purchaseType,
+      description: product.description,
+      category: product.category
     });
 
     if (window.animateProductToCart && productImageRef.current) {
@@ -81,12 +80,7 @@ const ProductDetail: React.FC = () => {
   };
   
   const handleAddToCartAttempt = () => {
-    // Check if user is authenticated first
-    if (!isAuthenticated) {
-      setShowAuthDialog(true);
-      return;
-    }
-
+    // No authentication check - allow adding to cart without login
     const existingItem = cart.items.find(
       (item) => item.productId === product.id && item.purchaseType === purchaseType
     );
@@ -154,12 +148,6 @@ const ProductDetail: React.FC = () => {
         </div>
       </main>
       <Footer />
-
-      {/* Auth Prompt Dialog */}
-      <AuthPromptDialog 
-        open={showAuthDialog} 
-        onOpenChange={setShowAuthDialog} 
-      />
 
       {/* Existing Item Confirmation Dialog */}
       {existingCartItemInfo && (

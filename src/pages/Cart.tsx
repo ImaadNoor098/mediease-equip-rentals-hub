@@ -1,21 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Trash, Plus, Minus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import AuthPromptDialog from '@/components/AuthPromptDialog';
 
 const Cart: React.FC = () => {
   const navigate = useNavigate();
   const { cart, removeItem, updateQuantity, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const isMobile = useIsMobile();
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const handleCheckout = () => {
-    console.log('Checkout button clicked', { cartItems: cart.items.length });
+    console.log('Checkout button clicked', { cartItems: cart.items.length, isAuthenticated });
     
     if (cart.items.length === 0) {
       toast({
@@ -23,6 +27,12 @@ const Cart: React.FC = () => {
         description: "Please add items to your cart before proceeding to checkout.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Check if user is authenticated before proceeding to checkout
+    if (!isAuthenticated) {
+      setShowAuthDialog(true);
       return;
     }
     
@@ -224,6 +234,12 @@ const Cart: React.FC = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Auth Prompt Dialog */}
+      <AuthPromptDialog 
+        open={showAuthDialog} 
+        onOpenChange={setShowAuthDialog} 
+      />
     </div>
   );
 };
