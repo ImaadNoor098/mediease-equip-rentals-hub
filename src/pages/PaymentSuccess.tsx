@@ -40,13 +40,13 @@ const PaymentSuccess: React.FC = () => {
     if (cart.items.length > 0) {
       console.log('PaymentSuccess: Using cart items for order');
       orderItems = cart.items.map(item => ({
-        id: item.productId || `item_${Date.now()}_${Math.random()}`,
+        id: item.productId || item.id || `item_${Date.now()}_${Math.random()}`,
         name: item.name,
         quantity: item.quantity,
         price: item.price,
         purchaseType: item.purchaseType || 'buy',
-        image: item.image,
-        retailPrice: item.retailPrice,
+        image: item.image || '',
+        retailPrice: item.retailPrice || 0,
         description: item.description || '',
         category: item.category || 'Medical Equipment'
       }));
@@ -76,7 +76,9 @@ const PaymentSuccess: React.FC = () => {
           price: total,
           purchaseType: 'buy',
           description: 'Order processed successfully',
-          category: 'Medical Equipment'
+          category: 'Medical Equipment',
+          image: '',
+          retailPrice: 0
         }];
       }
     }
@@ -102,21 +104,22 @@ const PaymentSuccess: React.FC = () => {
         status: 'confirmed'
       };
       
-      console.log('PaymentSuccess: Creating order with items:', order);
+      console.log('PaymentSuccess: Creating order with complete item details:', order);
       console.log('PaymentSuccess: Order items count:', order.items.length);
+      console.log('PaymentSuccess: Each item details:', order.items);
       
       // Always try to save the order
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: User is authenticated, saving order to history');
         addOrder(order);
-        console.log('PaymentSuccess: Order added to user history with items:', order.items);
+        console.log('PaymentSuccess: Order added to user history with complete details:', order.items);
       } else {
         console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
         // Store order temporarily in localStorage for guest users
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
         localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
-        console.log('PaymentSuccess: Order saved to localStorage for guest user with items:', order.items);
+        console.log('PaymentSuccess: Order saved to localStorage for guest user with complete details:', order.items);
       }
       
       setOrderSaved(true);
