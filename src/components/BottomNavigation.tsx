@@ -34,15 +34,11 @@ const BottomNavigation = () => {
 
     clickTimeoutRef.current = setTimeout(() => {
       if (clickCount === 0) {
-        // Single click - go to last visited page or home if already on home
-        if (location.pathname === '/') {
-          navigate(lastVisitedPage);
-        } else {
-          navigate(lastVisitedPage);
-        }
-      } else if (clickCount === 1) {
-        // Double click - always go to home
+        // Single click - always go to home page
         navigate('/');
+      } else if (clickCount === 1) {
+        // Double click - go to last visited page
+        navigate(lastVisitedPage);
       }
       setClickCount(0);
     }, 300);
