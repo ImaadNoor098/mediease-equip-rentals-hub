@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { User, Bell, Shield, Trash2, HelpCircle, Edit3, Package } from 'lucide-react';
+import { User, Bell, Shield, Trash2, HelpCircle, Edit3, Package, LogOut } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import EditProfileDialog from '@/components/navbar/EditProfileDialog';
 import OrderHistoryDialog from '@/components/navbar/OrderHistoryDialog';
@@ -49,15 +50,50 @@ const Settings: React.FC = () => {
     }, 1000);
   };
 
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out from MediEaze.",
+    });
+    navigate('/');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar onSearch={(query) => navigate(`/products?search=${encodeURIComponent(query)}`)} />
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-6">
-            <BackButton />
-            <h1 className="text-3xl font-bold mt-4">Profile</h1>
-            <p className="text-muted-foreground">Manage your account and preferences</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <BackButton />
+                <h1 className="text-3xl font-bold mt-4">Profile</h1>
+                <p className="text-muted-foreground">Manage your account and preferences</p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <LogOut size={16} />
+                    Log Out
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You will be signed out of your MediEaze account and redirected to the homepage.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleLogout}>
+                      Yes, Log Out
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           </div>
 
           {/* Quick Action Boxes */}
