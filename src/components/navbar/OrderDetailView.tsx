@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Package, ShoppingCart, Clock, Calendar } from 'lucide-react';
@@ -138,31 +137,39 @@ const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }
                 {order.items.map((item, index) => (
                   <div key={item.id || `item-${index}`} className="bg-white rounded-lg p-4 shadow-sm border border-green-200">
                     <div className="flex gap-4">
-                      {/* Product Image */}
+                      {/* Product Image - Enhanced Display */}
                       <div className="flex-shrink-0">
-                        {item.image ? (
-                          <img 
-                            src={item.image} 
-                            alt={item.name}
-                            className="w-16 h-16 object-cover rounded-lg border-2 border-green-100"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              target.nextElementSibling?.classList.remove('hidden');
-                            }}
-                          />
-                        ) : null}
-                        <div className={`w-16 h-16 bg-gray-100 rounded-lg border-2 border-green-100 flex items-center justify-center ${item.image ? 'hidden' : ''}`}>
-                          <Package className="h-6 w-6 text-gray-400" />
+                        <div className="w-20 h-20 relative">
+                          {item.image ? (
+                            <img 
+                              src={item.image} 
+                              alt={item.name}
+                              className="w-full h-full object-cover rounded-lg border-2 border-green-100 shadow-sm"
+                              onError={(e) => {
+                                console.log(`Failed to load image for ${item.name}:`, item.image);
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const fallbackDiv = target.nextElementSibling as HTMLElement;
+                                if (fallbackDiv) {
+                                  fallbackDiv.style.display = 'flex';
+                                }
+                              }}
+                            />
+                          ) : null}
+                          <div 
+                            className={`w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg border-2 border-green-100 flex items-center justify-center absolute top-0 left-0 ${item.image ? 'hidden' : 'flex'}`}
+                          >
+                            <Package className="h-8 w-8 text-gray-400" />
+                          </div>
                         </div>
                       </div>
                       
                       {/* Product Details */}
                       <div className="flex-1 space-y-2">
                         <div>
-                          <h4 className="font-bold text-base text-gray-900">{item.name}</h4>
+                          <h4 className="font-bold text-base text-gray-900 line-clamp-2">{item.name}</h4>
                           {item.description && (
-                            <p className="text-xs text-gray-600 mt-1">
+                            <p className="text-xs text-gray-600 mt-1 line-clamp-2">
                               {item.description}
                             </p>
                           )}

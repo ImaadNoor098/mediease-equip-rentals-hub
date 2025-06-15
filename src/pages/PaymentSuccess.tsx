@@ -31,27 +31,32 @@ const PaymentSuccess: React.FC = () => {
     console.log('PaymentSuccess: Cart items with full details:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
-    // Create order from cart items or from payment data
+    // Create order from cart items - ALWAYS use cart items if available
     let orderItems = [];
     let orderTotal = 0;
     let orderSavings = 0;
     
     // If we have cart items, use them and calculate proper totals
-    if (cart.items.length > 0) {
+    if (cart.items && cart.items.length > 0) {
       console.log('PaymentSuccess: Processing cart items for order creation');
       orderItems = cart.items.map(item => {
         console.log('PaymentSuccess: Processing cart item:', item);
-        return {
+        
+        // Ensure we capture ALL product details from the cart item
+        const orderItem = {
           id: item.productId || item.id || `item_${Date.now()}_${Math.random()}`,
           name: item.name || 'Unknown Product',
           quantity: item.quantity || 1,
           price: item.price || 0,
           purchaseType: item.purchaseType || 'buy',
-          image: item.image || '',
+          image: item.image || '', // Ensure image is captured
           retailPrice: item.retailPrice || 0,
           description: item.description || '',
           category: item.category || 'Medical Equipment'
         };
+        
+        console.log('PaymentSuccess: Created order item:', orderItem);
+        return orderItem;
       });
       
       // Calculate total from cart items - this is the authoritative source
@@ -74,27 +79,17 @@ const PaymentSuccess: React.FC = () => {
       console.log('PaymentSuccess: Final calculated totals:', {
         orderTotal,
         orderSavings,
-        itemCount: orderItems.length
+        itemCount: orderItems.length,
+        itemDetails: orderItems.map(item => ({ name: item.name, image: item.image, price: item.price }))
       });
-    } else if (total > 0) {
-      // Fallback to payment data if no cart items
-      console.log('PaymentSuccess: No cart items, using payment data');
-      orderTotal = total;
-      orderSavings = savings || 0;
-      orderItems = [{
-        id: `order_item_${Date.now()}`,
-        name: 'Order Item',
-        quantity: 1,
-        price: total,
-        purchaseType: 'buy',
-        description: 'Order processed successfully',
-        category: 'Medical Equipment',
-        image: '',
-        retailPrice: 0
-      }];
+    } else {
+      console.log('PaymentSuccess: ERROR - No cart items available for order creation');
+      // If no cart items, we shouldn't create an order
+      setOrderSaved(true);
+      return;
     }
     
-    // Only create order if we have items or a total amount
+    // Only create order if we have valid items and total
     if (orderItems.length > 0 && orderTotal > 0) {
       // Create timestamp with both date and time
       const orderTimestamp = new Date().toISOString();
@@ -104,7 +99,7 @@ const PaymentSuccess: React.FC = () => {
         date: orderTimestamp, // Store full ISO timestamp
         total: orderTotal,
         method: method || 'Online Payment',
-        items: orderItems,
+        items: orderItems, // Use the detailed items from cart
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
           addressLine1: shippingAddress.addressLine1,
@@ -129,7 +124,9 @@ const PaymentSuccess: React.FC = () => {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
-          purchaseType: item.purchaseType
+          purchaseType: item.purchaseType,
+          image: item.image,
+          description: item.description
         }))
       });
       
@@ -149,10 +146,8 @@ const PaymentSuccess: React.FC = () => {
       setOrderSaved(true);
       
       // Clear cart after order is saved
-      if (cart.items.length > 0) {
-        console.log('PaymentSuccess: Clearing cart after successful order creation');
-        clearCart();
-      }
+      console.log('PaymentSuccess: Clearing cart after successful order creation');
+      clearCart();
     } else {
       console.log('PaymentSuccess: No valid order data to save');
       setOrderSaved(true);
