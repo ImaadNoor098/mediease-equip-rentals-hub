@@ -11,7 +11,7 @@ const PaymentSuccess: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearCart, cart } = useCart();
-  const { addOrder } = useAuth();
+  const { addOrder, user, isAuthenticated } = useAuth();
   const [countdown, setCountdown] = useState(5);
   const [orderSaved, setOrderSaved] = useState(false);
   
@@ -27,6 +27,7 @@ const PaymentSuccess: React.FC = () => {
   useEffect(() => {
     if (orderSaved) return; // Prevent duplicate order saving
     
+    console.log('PaymentSuccess: Authentication status:', { isAuthenticated, user: user?.email });
     console.log('PaymentSuccess: Cart items:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
@@ -61,16 +62,30 @@ const PaymentSuccess: React.FC = () => {
         status: 'confirmed'
       };
       
-      console.log('PaymentSuccess: Adding order to history:', order);
-      addOrder(order);
+      console.log('PaymentSuccess: Creating order:', order);
+      
+      if (isAuthenticated && user) {
+        console.log('PaymentSuccess: User is authenticated, saving order to history');
+        addOrder(order);
+        console.log('PaymentSuccess: Order added to user history');
+      } else {
+        console.log('PaymentSuccess: User is not authenticated, order will not be saved to history');
+        // Store order temporarily in localStorage for guest users
+        const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+        guestOrders.push(order);
+        localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
+        console.log('PaymentSuccess: Order saved to localStorage for guest user');
+      }
+      
       setOrderSaved(true);
       clearCart();
+      console.log('PaymentSuccess: Cart cleared after order processing');
     } else if (cart.items.length === 0) {
       console.log('PaymentSuccess: No items in cart, not creating order');
       // If no cart items, still mark as saved to prevent re-processing
       setOrderSaved(true);
     }
-  }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart]);
+  }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart, isAuthenticated, user]);
   
   // Separate effect for countdown to avoid interference
   useEffect(() => {
@@ -98,6 +113,14 @@ const PaymentSuccess: React.FC = () => {
         
         <h1 className="text-3xl font-bold text-mediease-900 mb-3">Payment Successful!</h1>
         <p className="text-gray-600 mb-6">Thank you for your order. Your payment via {method} has been processed successfully.</p>
+        
+        {!isAuthenticated && (
+          <div className="bg-orange-50 rounded-lg p-4 mb-4 border border-orange-200">
+            <p className="text-sm font-medium text-orange-800">
+              💡 Create an account to track your orders and view order history!
+            </p>
+          </div>
+        )}
         
         {paymentId && (
           <div className="bg-blue-50 rounded-lg p-4 mb-4">
