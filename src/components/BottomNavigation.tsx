@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User, ShoppingCart, Home, BriefcaseMedical } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import UserProfile from './navbar/UserProfile';
 
 const BottomNavigation = () => {
   const location = useLocation();
@@ -63,18 +64,24 @@ const BottomNavigation = () => {
             <span className="text-xs font-medium">Products</span>
           </Link>
 
-          {/* Profile Button */}
-          <Link 
-            to={isAuthenticated ? "/settings" : "/login"}
-            className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
-              isActive('/settings') || isActive('/login') 
-                ? 'text-primary bg-primary/10' 
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <User size={24} />
-            <span className="text-xs font-medium">Profile</span>
-          </Link>
+          {/* Profile Button - Now shows UserProfile popover */}
+          <div className={`flex flex-col items-center space-y-1 p-2 rounded-lg transition-colors ${
+            isActive('/settings') || isActive('/login') 
+              ? 'text-primary bg-primary/10' 
+              : 'text-muted-foreground hover:text-foreground'
+          }`}>
+            {isAuthenticated ? (
+              <UserProfile />
+            ) : (
+              <Link 
+                to="/login"
+                className="flex flex-col items-center space-y-1"
+              >
+                <User size={24} />
+                <span className="text-xs font-medium">Profile</span>
+              </Link>
+            )}
+          </div>
 
           {/* Cart Button */}
           <Link 
