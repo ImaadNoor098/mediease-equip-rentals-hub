@@ -23,42 +23,38 @@ const PaymentSuccess: React.FC = () => {
     shippingAddress: null
   };
   
-  // Process order creation immediately when component mounts
+  // Process order creation ONCE when component mounts
   useEffect(() => {
+    // Prevent multiple order creation
     if (orderProcessed) {
       console.log('PaymentSuccess: Order already processed, skipping');
       return;
     }
 
-    console.log('PaymentSuccess: Starting order processing');
-    console.log('PaymentSuccess: Cart items:', cart.items);
-    console.log('PaymentSuccess: Auth status:', { isAuthenticated, hasUser: !!user });
-
     // Validate cart has items
     if (!cart.items || cart.items.length === 0) {
-      console.error('PaymentSuccess: No cart items found, cannot create order');
-      setOrderProcessed(true);
+      console.error('PaymentSuccess: No cart items found, redirecting to home');
+      navigate('/');
       return;
     }
 
-    // Create order items with complete data
-    const orderItems = cart.items.map((item, index) => {
-      console.log(`PaymentSuccess: Processing item ${index + 1}:`, item);
-      
-      return {
-        id: item.productId || item.id || `item_${Date.now()}_${index}`,
-        name: item.name || 'Unknown Product',
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        purchaseType: item.purchaseType || 'buy',
-        image: item.image || '',
-        retailPrice: item.retailPrice || item.price || 0,
-        description: item.description || '',
-        category: item.category || 'Medical Equipment'
-      };
-    });
+    console.log('PaymentSuccess: Processing order with cart:', cart.items);
+    console.log('PaymentSuccess: User context:', { isAuthenticated, userId: user?.id });
 
-    // Calculate totals
+    // Create order items with complete data
+    const orderItems = cart.items.map((item, index) => ({
+      id: item.productId || item.id || `item_${Date.now()}_${index}`,
+      name: item.name || 'Unknown Product',
+      quantity: item.quantity || 1,
+      price: item.price || 0,
+      purchaseType: item.purchaseType || 'buy',
+      image: item.image || '',
+      retailPrice: item.retailPrice || item.price || 0,
+      description: item.description || '',
+      category: item.category || 'Medical Equipment'
+    }));
+
+    // Calculate totals if not provided
     const calculatedTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const calculatedSavings = orderItems.reduce((sum, item) => {
       if (item.retailPrice && item.retailPrice > item.price) {
@@ -79,39 +75,40 @@ const PaymentSuccess: React.FC = () => {
       status: 'confirmed' as const
     };
 
-    console.log('PaymentSuccess: Created order object:', newOrder);
+    console.log('PaymentSuccess: Creating order:', newOrder);
 
-    // Save order and mark as processed immediately
+    // Mark as processed immediately to prevent duplicates
     setOrderProcessed(true);
     
-    try {
-      if (isAuthenticated && user) {
-        console.log('PaymentSuccess: Adding order for authenticated user');
-        addOrder(newOrder);
-        console.log('PaymentSuccess: Order added to user context successfully');
-      } else {
-        console.log('PaymentSuccess: Saving order for guest user');
+    // Save order based on authentication status
+    if (isAuthenticated && user) {
+      console.log('PaymentSuccess: Saving order for authenticated user');
+      addOrder(newOrder);
+    } else {
+      console.log('PaymentSuccess: Saving order for guest user');
+      try {
         const existingOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         const updatedOrders = [newOrder, ...existingOrders];
         localStorage.setItem('guestOrders', JSON.stringify(updatedOrders));
-        console.log('PaymentSuccess: Guest orders saved to localStorage:', updatedOrders);
         
-        // Trigger storage event for other tabs/components
+        // Trigger storage event for cross-tab communication
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'guestOrders',
-          newValue: JSON.stringify(updatedOrders)
+          newValue: JSON.stringify(updatedOrders),
+          oldValue: JSON.stringify(existingOrders)
         }));
+        
+        console.log('PaymentSuccess: Guest order saved successfully');
+      } catch (error) {
+        console.error('PaymentSuccess: Error saving guest order:', error);
       }
-
-      // Clear cart after successful order save
-      clearCart();
-      console.log('PaymentSuccess: Order processing completed successfully');
-      
-    } catch (error) {
-      console.error('PaymentSuccess: Error saving order:', error);
-      setOrderProcessed(false); // Allow retry if there was an error
     }
-  }, [cart.items, addOrder, isAuthenticated, user, method, total, savings, paymentId, shippingAddress, orderProcessed, clearCart]);
+
+    // Clear cart after successful order save
+    clearCart();
+    console.log('PaymentSuccess: Order processing completed');
+    
+  }, []); // Empty dependency array to run only once
   
   // Countdown timer effect
   useEffect(() => {

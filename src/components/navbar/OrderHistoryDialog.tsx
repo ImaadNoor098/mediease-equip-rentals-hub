@@ -20,25 +20,26 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [guestOrders, setGuestOrders] = useState<OrderHistoryItem[]>([]);
 
-  // Function to reload guest orders from localStorage
-  const reloadGuestOrders = () => {
-    try {
-      const storedOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
-      console.log('OrderHistoryDialog: Loaded guest orders from localStorage:', storedOrders);
-      setGuestOrders(storedOrders);
-      return storedOrders;
-    } catch (error) {
-      console.error('OrderHistoryDialog: Error loading guest orders:', error);
-      return [];
+  // Force refresh orders whenever dialog opens or user changes
+  const refreshOrders = () => {
+    if (!isAuthenticated) {
+      try {
+        const storedOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+        console.log('OrderHistoryDialog: Refreshed guest orders:', storedOrders);
+        setGuestOrders(storedOrders);
+      } catch (error) {
+        console.error('OrderHistoryDialog: Error refreshing guest orders:', error);
+        setGuestOrders([]);
+      }
     }
   };
 
-  // Listen for storage changes (for guest orders)
+  // Listen for storage changes (guest orders)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'guestOrders') {
-        console.log('OrderHistoryDialog: Storage changed, reloading guest orders');
-        reloadGuestOrders();
+        console.log('OrderHistoryDialog: Storage changed, refreshing');
+        refreshOrders();
       }
     };
 
@@ -46,38 +47,29 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  // Reload orders when component mounts or dependencies change
+  // Refresh when auth state changes or user changes
   useEffect(() => {
-    console.log('OrderHistoryDialog: Effect triggered - reloading orders');
-    console.log('OrderHistoryDialog: Auth state:', { isAuthenticated, userOrderCount: user?.orderHistory?.length });
-    
-    if (!isAuthenticated) {
-      reloadGuestOrders();
-    }
-  }, [isAuthenticated, user?.orderHistory]);
+    console.log('OrderHistoryDialog: Auth state changed, refreshing orders');
+    refreshOrders();
+  }, [isAuthenticated, user?.orderHistory?.length]);
 
-  // Force refresh when dialog opens
+  // Refresh when dialog opens
   useEffect(() => {
     if (isOpen) {
-      console.log('OrderHistoryDialog: Dialog opened, forcing refresh');
-      if (!isAuthenticated) {
-        reloadGuestOrders();
-      }
+      console.log('OrderHistoryDialog: Dialog opened, force refreshing');
+      refreshOrders();
     }
-  }, [isOpen, isAuthenticated]);
+  }, [isOpen]);
 
-  // Get current orders - always get the latest data
+  // Get current orders - always use fresh data
   const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
 
-  console.log('OrderHistoryDialog: Current orders to display:', {
+  console.log('OrderHistoryDialog: Current display state:', {
     isAuthenticated,
+    isOpen,
     orderCount: orders.length,
-    orders: orders.slice(0, 3).map(order => ({ // Log first 3 for brevity
-      id: order.id,
-      date: order.date,
-      total: order.total,
-      itemCount: order.items?.length || 0
-    }))
+    userOrderHistory: user?.orderHistory?.length || 0,
+    guestOrdersLength: guestOrders.length
   });
 
   const handleDeleteOrder = (orderId: string) => {
@@ -89,7 +81,6 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       const updatedOrders = guestOrders.filter(order => order.id !== orderId);
       setGuestOrders(updatedOrders);
       localStorage.setItem('guestOrders', JSON.stringify(updatedOrders));
-      console.log('OrderHistoryDialog: Updated guest orders after deletion:', updatedOrders);
     }
     
     // Clear selections
@@ -129,7 +120,6 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       const updatedOrders = guestOrders.filter(order => !ordersToDelete.includes(order.id));
       setGuestOrders(updatedOrders);
       localStorage.setItem('guestOrders', JSON.stringify(updatedOrders));
-      console.log('OrderHistoryDialog: Updated guest orders after bulk deletion:', updatedOrders);
     }
     
     setSelectedOrders(new Set());
@@ -175,6 +165,9 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
     if (!open) {
       setSelectedOrders(new Set());
       setSelectedOrder(null);
+    } else {
+      // Force refresh when opening
+      refreshOrders();
     }
   };
 

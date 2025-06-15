@@ -205,24 +205,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const addOrder = (order: OrderHistoryItem) => {
     if (!user) {
-      console.log('AuthProvider: No user logged in, cannot add order');
+      console.error('AuthProvider: Cannot add order - no user logged in');
       return;
     }
 
-    console.log('AuthProvider: Adding order for user:', user.email, order);
+    console.log('AuthProvider: Adding order for user:', user.email);
+    console.log('AuthProvider: Order details:', order);
 
-    // Create updated user with new order at the beginning of the array
+    // Create updated user with new order at the beginning
     const updatedUser = {
       ...user,
       orderHistory: [order, ...(user.orderHistory || [])]
     };
     
-    console.log('AuthProvider: Updated user order history:', updatedUser.orderHistory);
+    console.log('AuthProvider: Updated order history length:', updatedUser.orderHistory.length);
     
-    // Update user state immediately
+    // Update state immediately
     setUser(updatedUser);
 
-    // Update the user in registered users storage
+    // Update in persistent storage
     const userRecord = registeredUsers.get(user.email);
     if (userRecord) {
       const newRegisteredUsers = new Map(registeredUsers);
@@ -232,12 +233,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       setRegisteredUsers(newRegisteredUsers);
       
-      // Also immediately save to localStorage to ensure persistence
+      // Force immediate localStorage update
       const usersData = Object.fromEntries(newRegisteredUsers);
       localStorage.setItem('registeredUsers', JSON.stringify(usersData));
       localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       
-      console.log('AuthProvider: Order added successfully. New order history length:', updatedUser.orderHistory.length);
+      console.log('AuthProvider: Order added successfully. Total orders:', updatedUser.orderHistory.length);
+    } else {
+      console.error('AuthProvider: User record not found for:', user.email);
     }
   };
 
