@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,11 @@ import { OrderHistoryItem } from '@/types/order';
 import OrderListView from './OrderListView';
 import OrderDetailView from './OrderDetailView';
 
-const OrderHistoryDialog = () => {
+interface OrderHistoryDialogProps {
+  children?: React.ReactNode;
+}
+
+const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => {
   const { user, deleteOrder, bulkDeleteOrders, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderHistoryItem | null>(null);
@@ -140,9 +143,11 @@ const OrderHistoryDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Order History ({orders.length})
-        </Button>
+        {children || (
+          <Button variant="outline" size="sm">
+            Order History ({orders.length})
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-4xl max-h-[80vh]">
         <DialogHeader>

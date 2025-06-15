@@ -12,6 +12,7 @@ import { User, Bell, Shield, Trash2, HelpCircle, Edit3, Package } from 'lucide-r
 import BackButton from '@/components/BackButton';
 import EditProfileDialog from '@/components/navbar/EditProfileDialog';
 import OrderHistoryDialog from '@/components/navbar/OrderHistoryDialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -71,16 +72,17 @@ const Settings: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-lg transition-all cursor-pointer group relative">
-              <OrderHistoryDialog />
-              <div className="flex flex-col items-center space-y-3 pointer-events-none">
-                <div className="p-4 bg-green-500 text-white rounded-full group-hover:scale-110 transition-transform">
-                  <Package size={24} />
+            <OrderHistoryDialog>
+              <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-lg transition-all cursor-pointer group">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="p-4 bg-green-500 text-white rounded-full group-hover:scale-110 transition-transform">
+                    <Package size={24} />
+                  </div>
+                  <span className="text-sm font-semibold text-green-700">Check Orders</span>
+                  <span className="text-xs text-green-600 font-bold">{user?.orderHistory?.length || 0} orders</span>
                 </div>
-                <span className="text-sm font-semibold text-green-700">Check Orders</span>
-                <span className="text-xs text-green-600 font-bold">{user?.orderHistory?.length || 0} orders</span>
               </div>
-            </div>
+            </OrderHistoryDialog>
           </div>
 
           <div className="space-y-6">
