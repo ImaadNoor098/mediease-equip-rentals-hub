@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
@@ -28,7 +27,7 @@ const PaymentSuccess: React.FC = () => {
     if (orderSaved) return; // Prevent duplicate order saving
     
     console.log('PaymentSuccess: Authentication status:', { isAuthenticated, user: user?.email });
-    console.log('PaymentSuccess: Cart items:', cart.items);
+    console.log('PaymentSuccess: Cart items with full details:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
     // Create order from cart items or from payment data
@@ -38,18 +37,21 @@ const PaymentSuccess: React.FC = () => {
     
     // If we have cart items, use them and calculate proper totals
     if (cart.items.length > 0) {
-      console.log('PaymentSuccess: Using cart items for order');
-      orderItems = cart.items.map(item => ({
-        id: item.productId || item.id || `item_${Date.now()}_${Math.random()}`,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        purchaseType: item.purchaseType || 'buy',
-        image: item.image || '',
-        retailPrice: item.retailPrice || 0,
-        description: item.description || '',
-        category: item.category || 'Medical Equipment'
-      }));
+      console.log('PaymentSuccess: Processing cart items for order creation');
+      orderItems = cart.items.map(item => {
+        console.log('PaymentSuccess: Processing cart item:', item);
+        return {
+          id: item.productId || item.id || `item_${Date.now()}_${Math.random()}`,
+          name: item.name || 'Unknown Product',
+          quantity: item.quantity || 1,
+          price: item.price || 0,
+          purchaseType: item.purchaseType || 'buy',
+          image: item.image || '',
+          retailPrice: item.retailPrice || 0,
+          description: item.description || '',
+          category: item.category || 'Medical Equipment'
+        };
+      });
       
       // Calculate total from cart items
       orderTotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -62,9 +64,18 @@ const PaymentSuccess: React.FC = () => {
         return sum;
       }, 0);
       
-      console.log('PaymentSuccess: Calculated order total:', orderTotal);
-      console.log('PaymentSuccess: Calculated order savings:', orderSavings);
-      console.log('PaymentSuccess: Order items with full details:', orderItems);
+      console.log('PaymentSuccess: Final order calculation:', {
+        orderTotal,
+        orderSavings,
+        itemCount: orderItems.length,
+        orderItems: orderItems.map(item => ({
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          purchaseType: item.purchaseType,
+          hasImage: !!item.image
+        }))
+      });
     } else {
       console.log('PaymentSuccess: No cart items, creating order from payment data');
       // If no cart items but we have payment data, create a placeholder
@@ -104,30 +115,42 @@ const PaymentSuccess: React.FC = () => {
         status: 'confirmed'
       };
       
-      console.log('PaymentSuccess: Creating order with complete item details:', order);
-      console.log('PaymentSuccess: Order items count:', order.items.length);
-      console.log('PaymentSuccess: Each item details:', order.items);
+      console.log('PaymentSuccess: Final order object created:', {
+        orderId: order.id,
+        itemCount: order.items.length,
+        total: order.total,
+        savings: order.savings,
+        itemDetails: order.items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          purchaseType: item.purchaseType,
+          image: item.image,
+          category: item.category
+        }))
+      });
       
       // Always try to save the order
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: User is authenticated, saving order to history');
         addOrder(order);
-        console.log('PaymentSuccess: Order added to user history with complete details:', order.items);
+        console.log('PaymentSuccess: Order successfully added to user history');
       } else {
         console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
         // Store order temporarily in localStorage for guest users
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
         localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
-        console.log('PaymentSuccess: Order saved to localStorage for guest user with complete details:', order.items);
+        console.log('PaymentSuccess: Order saved to localStorage for guest user');
       }
       
       setOrderSaved(true);
       
       // Clear cart only after order is saved
       if (cart.items.length > 0) {
+        console.log('PaymentSuccess: Clearing cart after successful order creation');
         clearCart();
-        console.log('PaymentSuccess: Cart cleared after order processing');
       }
     } else {
       console.log('PaymentSuccess: No items or total amount, not creating order');
