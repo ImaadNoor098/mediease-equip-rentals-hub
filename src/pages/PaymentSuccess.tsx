@@ -76,37 +76,40 @@ const PaymentSuccess: React.FC = () => {
       items: orderItems,
       shippingAddress: shippingAddress,
       savings: savings || calculatedSavings,
-      status: 'confirmed'
+      status: 'confirmed' as const
     };
 
     console.log('PaymentSuccess: Created order object:', newOrder);
 
-    // Save order
+    // Save order and mark as processed immediately
+    setOrderProcessed(true);
+    
     try {
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: Adding order for authenticated user');
         addOrder(newOrder);
-        console.log('PaymentSuccess: Order added to user context');
-        
-        // Force a small delay to ensure state updates
-        setTimeout(() => {
-          console.log('PaymentSuccess: Current user order history after addition:', user.orderHistory);
-        }, 100);
+        console.log('PaymentSuccess: Order added to user context successfully');
       } else {
         console.log('PaymentSuccess: Saving order for guest user');
         const existingOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         const updatedOrders = [newOrder, ...existingOrders];
         localStorage.setItem('guestOrders', JSON.stringify(updatedOrders));
-        console.log('PaymentSuccess: Guest orders saved:', updatedOrders);
+        console.log('PaymentSuccess: Guest orders saved to localStorage:', updatedOrders);
+        
+        // Trigger storage event for other tabs/components
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'guestOrders',
+          newValue: JSON.stringify(updatedOrders)
+        }));
       }
 
-      // Mark as processed and clear cart
-      setOrderProcessed(true);
+      // Clear cart after successful order save
       clearCart();
       console.log('PaymentSuccess: Order processing completed successfully');
       
     } catch (error) {
       console.error('PaymentSuccess: Error saving order:', error);
+      setOrderProcessed(false); // Allow retry if there was an error
     }
   }, [cart.items, addOrder, isAuthenticated, user, method, total, savings, paymentId, shippingAddress, orderProcessed, clearCart]);
   

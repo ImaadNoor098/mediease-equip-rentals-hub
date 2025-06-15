@@ -211,14 +211,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     console.log('AuthProvider: Adding order for user:', user.email, order);
 
+    // Create updated user with new order at the beginning of the array
     const updatedUser = {
       ...user,
-      orderHistory: [...(user.orderHistory || []), order]
+      orderHistory: [order, ...(user.orderHistory || [])]
     };
     
+    console.log('AuthProvider: Updated user order history:', updatedUser.orderHistory);
+    
+    // Update user state immediately
     setUser(updatedUser);
 
-    // Update the user in registered users as well
+    // Update the user in registered users storage
     const userRecord = registeredUsers.get(user.email);
     if (userRecord) {
       const newRegisteredUsers = new Map(registeredUsers);
@@ -227,6 +231,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         userData: updatedUser
       });
       setRegisteredUsers(newRegisteredUsers);
+      
+      // Also immediately save to localStorage to ensure persistence
+      const usersData = Object.fromEntries(newRegisteredUsers);
+      localStorage.setItem('registeredUsers', JSON.stringify(usersData));
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      
       console.log('AuthProvider: Order added successfully. New order history length:', updatedUser.orderHistory.length);
     }
   };

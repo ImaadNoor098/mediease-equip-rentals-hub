@@ -19,7 +19,6 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
   const [selectedOrder, setSelectedOrder] = useState<OrderHistoryItem | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [guestOrders, setGuestOrders] = useState<OrderHistoryItem[]>([]);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Function to reload guest orders from localStorage
   const reloadGuestOrders = () => {
@@ -34,6 +33,19 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
     }
   };
 
+  // Listen for storage changes (for guest orders)
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'guestOrders') {
+        console.log('OrderHistoryDialog: Storage changed, reloading guest orders');
+        reloadGuestOrders();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   // Reload orders when component mounts or dependencies change
   useEffect(() => {
     console.log('OrderHistoryDialog: Effect triggered - reloading orders');
@@ -42,7 +54,7 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
     if (!isAuthenticated) {
       reloadGuestOrders();
     }
-  }, [isAuthenticated, user?.orderHistory, refreshTrigger]);
+  }, [isAuthenticated, user?.orderHistory]);
 
   // Force refresh when dialog opens
   useEffect(() => {
@@ -51,12 +63,10 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
       if (!isAuthenticated) {
         reloadGuestOrders();
       }
-      // Force a refresh trigger
-      setRefreshTrigger(prev => prev + 1);
     }
   }, [isOpen, isAuthenticated]);
 
-  // Get current orders
+  // Get current orders - always get the latest data
   const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
 
   console.log('OrderHistoryDialog: Current orders to display:', {
