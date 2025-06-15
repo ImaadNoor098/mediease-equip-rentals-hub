@@ -25,132 +25,103 @@ const PaymentSuccess: React.FC = () => {
   
   // Clear cart and save order on successful payment - only once
   useEffect(() => {
-    if (orderSaved) return;
+    if (orderSaved) {
+      console.log('PaymentSuccess: Order already saved, skipping');
+      return;
+    }
     
+    console.log('PaymentSuccess: Starting order creation process');
     console.log('PaymentSuccess: Authentication status:', { isAuthenticated, user: user?.email });
-    console.log('PaymentSuccess: Cart items with full details:', cart.items);
+    console.log('PaymentSuccess: Cart items:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
-    // Create order from cart items - ALWAYS use cart items if available
-    let orderItems = [];
-    let orderTotal = 0;
-    let orderSavings = 0;
-    
-    // If we have cart items, use them and calculate proper totals
-    if (cart.items && cart.items.length > 0) {
-      console.log('PaymentSuccess: Processing cart items for order creation');
-      orderItems = cart.items.map(item => {
-        console.log('PaymentSuccess: Processing cart item:', item);
-        
-        // Ensure we capture ALL product details from the cart item
-        const orderItem = {
-          id: item.productId || item.id || `item_${Date.now()}_${Math.random()}`,
-          name: item.name || 'Unknown Product',
-          quantity: item.quantity || 1,
-          price: item.price || 0,
-          purchaseType: item.purchaseType || 'buy',
-          image: item.image || '', // Ensure image is captured
-          retailPrice: item.retailPrice || 0,
-          description: item.description || '',
-          category: item.category || 'Medical Equipment'
-        };
-        
-        console.log('PaymentSuccess: Created order item:', orderItem);
-        return orderItem;
-      });
-      
-      // Calculate total from cart items - this is the authoritative source
-      orderTotal = cart.items.reduce((sum, item) => {
-        const itemTotal = (item.price || 0) * (item.quantity || 1);
-        console.log(`PaymentSuccess: Item ${item.name}: price=${item.price} * quantity=${item.quantity} = ${itemTotal}`);
-        return sum + itemTotal;
-      }, 0);
-      
-      // Calculate savings from cart items
-      orderSavings = cart.items.reduce((sum, item) => {
-        if (item.retailPrice && item.retailPrice > item.price) {
-          const itemSavings = (item.retailPrice - item.price) * item.quantity;
-          console.log(`PaymentSuccess: Item ${item.name} savings: ${itemSavings}`);
-          return sum + itemSavings;
-        }
-        return sum;
-      }, 0);
-      
-      console.log('PaymentSuccess: Final calculated totals:', {
-        orderTotal,
-        orderSavings,
-        itemCount: orderItems.length,
-        itemDetails: orderItems.map(item => ({ name: item.name, image: item.image, price: item.price }))
-      });
-    } else {
-      console.log('PaymentSuccess: ERROR - No cart items available for order creation');
-      // If no cart items, we shouldn't create an order
+    // Validate we have cart items
+    if (!cart.items || cart.items.length === 0) {
+      console.error('PaymentSuccess: No cart items available for order creation');
       setOrderSaved(true);
       return;
     }
     
-    // Only create order if we have valid items and total
-    if (orderItems.length > 0 && orderTotal > 0) {
-      // Create timestamp with both date and time
-      const orderTimestamp = new Date().toISOString();
+    // Create order from cart items
+    const orderItems = cart.items.map((item, index) => {
+      console.log(`PaymentSuccess: Processing cart item ${index}:`, item);
       
-      const order = {
-        id: paymentId || `order_${Date.now()}`,
-        date: orderTimestamp, // Store full ISO timestamp
-        total: orderTotal,
-        method: method || 'Online Payment',
-        items: orderItems, // Use the detailed items from cart
-        shippingAddress: shippingAddress ? {
-          fullName: shippingAddress.fullName,
-          addressLine1: shippingAddress.addressLine1,
-          addressLine2: shippingAddress.addressLine2,
-          city: shippingAddress.city,
-          state: shippingAddress.state,
-          pincode: shippingAddress.pincode,
-          mobileNumber: shippingAddress.mobileNumber
-        } : undefined,
-        savings: orderSavings,
-        status: 'confirmed'
+      return {
+        id: item.productId || item.id || `item_${Date.now()}_${index}`,
+        name: item.name || 'Unknown Product',
+        quantity: item.quantity || 1,
+        price: item.price || 0,
+        purchaseType: item.purchaseType || 'buy',
+        image: item.image || '',
+        retailPrice: item.retailPrice || 0,
+        description: item.description || '',
+        category: item.category || 'Medical Equipment'
       };
-      
-      console.log('PaymentSuccess: Final order object created:', {
-        orderId: order.id,
-        itemCount: order.items.length,
-        total: order.total,
-        savings: order.savings,
-        timestamp: order.date,
-        itemDetails: order.items.map(item => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          purchaseType: item.purchaseType,
-          image: item.image,
-          description: item.description
-        }))
-      });
-      
-      // Save the order
+    });
+    
+    // Calculate totals from cart items
+    const orderTotal = cart.items.reduce((sum, item) => {
+      const itemTotal = (item.price || 0) * (item.quantity || 1);
+      console.log(`PaymentSuccess: Item ${item.name}: price=${item.price} * quantity=${item.quantity} = ${itemTotal}`);
+      return sum + itemTotal;
+    }, 0);
+    
+    const orderSavings = cart.items.reduce((sum, item) => {
+      if (item.retailPrice && item.retailPrice > item.price) {
+        const itemSavings = (item.retailPrice - item.price) * item.quantity;
+        return sum + itemSavings;
+      }
+      return sum;
+    }, 0);
+    
+    console.log('PaymentSuccess: Calculated totals:', { orderTotal, orderSavings, itemCount: orderItems.length });
+    
+    // Create timestamp
+    const orderTimestamp = new Date().toISOString();
+    
+    // Create order object
+    const order = {
+      id: paymentId || `order_${Date.now()}`,
+      date: orderTimestamp,
+      total: orderTotal,
+      method: method || 'Online Payment',
+      items: orderItems,
+      shippingAddress: shippingAddress ? {
+        fullName: shippingAddress.fullName,
+        addressLine1: shippingAddress.addressLine1,
+        addressLine2: shippingAddress.addressLine2,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        pincode: shippingAddress.pincode,
+        mobileNumber: shippingAddress.mobileNumber
+      } : undefined,
+      savings: orderSavings,
+      status: 'confirmed'
+    };
+    
+    console.log('PaymentSuccess: Final order object:', order);
+    
+    // Save the order
+    try {
       if (isAuthenticated && user) {
-        console.log('PaymentSuccess: User is authenticated, saving order to history');
+        console.log('PaymentSuccess: Saving order for authenticated user');
         addOrder(order);
-        console.log('PaymentSuccess: Order successfully added to user history');
+        console.log('PaymentSuccess: Order saved to user history');
       } else {
-        console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
+        console.log('PaymentSuccess: Saving order for guest user');
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
         localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
-        console.log('PaymentSuccess: Order saved to localStorage for guest user');
+        console.log('PaymentSuccess: Order saved to localStorage:', guestOrders);
       }
       
       setOrderSaved(true);
       
       // Clear cart after order is saved
-      console.log('PaymentSuccess: Clearing cart after successful order creation');
+      console.log('PaymentSuccess: Clearing cart');
       clearCart();
-    } else {
-      console.log('PaymentSuccess: No valid order data to save');
-      setOrderSaved(true);
+    } catch (error) {
+      console.error('PaymentSuccess: Error saving order:', error);
     }
   }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart, isAuthenticated, user]);
   

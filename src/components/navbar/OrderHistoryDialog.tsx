@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -21,18 +22,30 @@ const OrderHistoryDialog: React.FC<OrderHistoryDialogProps> = ({ children }) => 
 
   // Load guest orders from localStorage
   useEffect(() => {
+    console.log('OrderHistoryDialog: Loading orders, isAuthenticated:', isAuthenticated);
+    
     if (!isAuthenticated) {
       const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+      console.log('OrderHistoryDialog: Loaded guest orders from localStorage:', storedGuestOrders);
       setGuestOrders(storedGuestOrders);
-      console.log('OrderHistoryDialog: Loaded guest orders:', storedGuestOrders);
+    } else {
+      console.log('OrderHistoryDialog: User authenticated, using user orders:', user?.orderHistory);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.orderHistory]);
+
+  // Also reload when dialog opens
+  useEffect(() => {
+    if (isOpen && !isAuthenticated) {
+      const storedGuestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
+      console.log('OrderHistoryDialog: Dialog opened, reloading guest orders:', storedGuestOrders);
+      setGuestOrders(storedGuestOrders);
+    }
+  }, [isOpen, isAuthenticated]);
 
   const orders = isAuthenticated ? (user?.orderHistory || []) : guestOrders;
 
-  console.log('OrderHistoryDialog: User:', user);
-  console.log('OrderHistoryDialog: Orders:', orders);
-  console.log('OrderHistoryDialog: Is authenticated:', isAuthenticated);
+  console.log('OrderHistoryDialog: Final orders to display:', orders);
+  console.log('OrderHistoryDialog: Orders count:', orders.length);
 
   const handleDeleteOrder = (orderId: string) => {
     console.log('Deleting single order:', orderId);
