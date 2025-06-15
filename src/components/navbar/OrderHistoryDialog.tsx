@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 import { useOrderHistoryState } from '@/hooks/useOrderHistoryState';
 import { useOrderOperations } from '@/hooks/useOrderOperations';
 import OrderHistoryHeader from './OrderHistoryHeader';

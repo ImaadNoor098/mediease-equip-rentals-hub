@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 import OrderListView from './OrderListView';
 import OrderDetailView from './OrderDetailView';
 

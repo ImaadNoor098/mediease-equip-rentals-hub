@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 
 export const useOrderHistoryState = (isOpen: boolean) => {
   const { user, isAuthenticated } = useAuth();

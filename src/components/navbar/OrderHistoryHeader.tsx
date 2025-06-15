@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { OrderHistoryItem } from '@/types/order';
+import { OrderHistoryItem } from '@/types/auth';
 
 interface OrderHistoryHeaderProps {
   selectedOrder: OrderHistoryItem | null;
