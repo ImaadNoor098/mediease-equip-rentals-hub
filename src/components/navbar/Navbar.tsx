@@ -4,8 +4,6 @@ import { useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Logo from './Logo';
 import SearchBar from './SearchBar';
-import CartButton from './CartButton';
-import UserProfile from './UserProfile';
 import Navigation from './Navigation';
 import MobileMenu from './MobileMenu';
 
@@ -39,14 +37,10 @@ const Navbar: React.FC<NavbarProps> = ({ onSearch }) => {
             <SearchBar onSearch={onSearch} />
           </div>
 
-          {/* User Profile, Cart Icon and Mobile Menu Button */}
-          <div className="flex items-center space-x-2">
-            <UserProfile />
-            <CartButton />
-
-            {/* Mobile Menu Button */}
+          {/* Mobile Menu Button */}
+          <div className="flex items-center">
             <button
-              className="md:hidden ml-2 p-2 text-foreground"
+              className="md:hidden p-2 text-foreground"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
