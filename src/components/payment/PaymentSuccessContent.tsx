@@ -1,0 +1,71 @@
+
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useCart } from '@/context/CartContext';
+import { AddressFormData } from '@/pages/CheckoutAddress';
+import Confetti from '@/components/Confetti';
+import OrderSummarySection from './OrderSummarySection';
+import AddressDisplaySection from './AddressDisplaySection';
+import { useCountdownTimer } from '@/hooks/useCountdownTimer';
+
+interface PaymentSuccessContentProps {
+  method: string;
+  total: number;
+  savings: number;
+  paymentId: string | null;
+  shippingAddress: AddressFormData | null;
+}
+
+const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
+  method,
+  total,
+  savings,
+  paymentId,
+  shippingAddress
+}) => {
+  const navigate = useNavigate();
+  const { cart } = useCart();
+  const countdown = useCountdownTimer();
+
+  // Calculate display values
+  const displayTotal = total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const displaySavings = savings || cart.items.reduce((sum, item) => {
+    if (item.retailPrice && item.retailPrice > item.price) {
+      return sum + ((item.retailPrice - item.price) * item.quantity);
+    }
+    return sum;
+  }, 0);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-mediease-50 px-4">
+      <Confetti />
+      <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full text-center">
+        <div className="mx-auto h-24 w-24 flex items-center justify-center bg-green-100 rounded-full mb-8">
+          <Check className="h-12 w-12 text-green-600" />
+        </div>
+        
+        <h1 className="text-3xl font-bold text-mediease-900 mb-3">Payment Successful!</h1>
+        
+        <OrderSummarySection 
+          paymentId={paymentId}
+          method={method}
+          displaySavings={displaySavings}
+          displayTotal={displayTotal}
+        />
+
+        <AddressDisplaySection shippingAddress={shippingAddress} />
+        
+        <Button 
+          onClick={() => navigate('/')}
+          className="bg-mediease-600 hover:bg-mediease-700 w-full"
+        >
+          Continue Shopping ({countdown})
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentSuccessContent;
