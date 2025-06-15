@@ -34,8 +34,9 @@ const PaymentSuccess: React.FC = () => {
     // Create order from cart items or from payment data
     let orderItems = [];
     let orderTotal = total || 0;
+    let orderSavings = savings || 0;
     
-    // If we have cart items, use them
+    // If we have cart items, use them and calculate proper totals
     if (cart.items.length > 0) {
       console.log('PaymentSuccess: Using cart items for order');
       orderItems = cart.items.map(item => ({
@@ -49,7 +50,21 @@ const PaymentSuccess: React.FC = () => {
         description: item.description || '',
         category: item.category || 'Medical Equipment'
       }));
+      
+      // Calculate total from cart items
       orderTotal = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      // Calculate savings from cart items
+      orderSavings = cart.items.reduce((sum, item) => {
+        if (item.retailPrice && item.retailPrice > item.price) {
+          return sum + ((item.retailPrice - item.price) * item.quantity);
+        }
+        return sum;
+      }, 0);
+      
+      console.log('PaymentSuccess: Calculated order total:', orderTotal);
+      console.log('PaymentSuccess: Calculated order savings:', orderSavings);
+      console.log('PaymentSuccess: Order items with full details:', orderItems);
     } else {
       console.log('PaymentSuccess: No cart items, creating order from payment data');
       // If no cart items but we have payment data, create a placeholder
@@ -83,24 +98,25 @@ const PaymentSuccess: React.FC = () => {
           pincode: shippingAddress.pincode,
           mobileNumber: shippingAddress.mobileNumber
         } : undefined,
-        savings: savings || 0,
+        savings: orderSavings,
         status: 'confirmed'
       };
       
-      console.log('PaymentSuccess: Creating order:', order);
+      console.log('PaymentSuccess: Creating order with items:', order);
+      console.log('PaymentSuccess: Order items count:', order.items.length);
       
       // Always try to save the order
       if (isAuthenticated && user) {
         console.log('PaymentSuccess: User is authenticated, saving order to history');
         addOrder(order);
-        console.log('PaymentSuccess: Order added to user history');
+        console.log('PaymentSuccess: Order added to user history with items:', order.items);
       } else {
         console.log('PaymentSuccess: User is not authenticated, saving order to localStorage');
         // Store order temporarily in localStorage for guest users
         const guestOrders = JSON.parse(localStorage.getItem('guestOrders') || '[]');
         guestOrders.push(order);
         localStorage.setItem('guestOrders', JSON.stringify(guestOrders));
-        console.log('PaymentSuccess: Order saved to localStorage for guest user');
+        console.log('PaymentSuccess: Order saved to localStorage for guest user with items:', order.items);
       }
       
       setOrderSaved(true);
@@ -157,15 +173,22 @@ const PaymentSuccess: React.FC = () => {
           </div>
         )}
         
-        {savings > 0 && (
+        {(savings > 0 || cart.items.some(item => item.retailPrice && item.retailPrice > item.price)) && (
           <div className="bg-green-50 rounded-lg p-4 mb-6">
-            <p className="font-medium text-green-800">You saved ₹{savings.toFixed(2)} on this order!</p>
+            <p className="font-medium text-green-800">
+              You saved ₹{(savings || cart.items.reduce((sum, item) => {
+                if (item.retailPrice && item.retailPrice > item.price) {
+                  return sum + ((item.retailPrice - item.price) * item.quantity);
+                }
+                return sum;
+              }, 0)).toFixed(2)} on this order!
+            </p>
           </div>
         )}
         
         <div className="mb-8">
           <p className="text-sm text-gray-500">Order Total</p>
-          <p className="text-2xl font-bold text-mediease-900">₹{(total || 0).toFixed(2)}</p>
+          <p className="text-2xl font-bold text-mediease-900">₹{(total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}</p>
         </div>
 
         {shippingAddress && (
