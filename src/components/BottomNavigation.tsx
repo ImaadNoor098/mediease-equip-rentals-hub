@@ -45,7 +45,7 @@ const BottomNavigation = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-40">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 shadow-lg">
       <div className="container mx-auto px-4">
         <div className="flex justify-center space-x-12 py-3">
           {/* Home Button */}

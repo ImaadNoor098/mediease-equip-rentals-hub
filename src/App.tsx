@@ -43,7 +43,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <div className="min-h-screen pb-20">
+            <div className="min-h-screen pb-20 relative">
               <ScrollToTop />
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -60,6 +60,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              {/* Fixed Bottom Navigation - Always visible */}
               <BottomNavigation />
             </div>
           </BrowserRouter>
