@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Trash, Plus, Minus } from 'lucide-react';
+import { Trash, Plus, Minus, ShoppingCart } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -68,7 +68,9 @@ const Cart: React.FC = () => {
       <div className="min-h-screen flex flex-col">
         <Navbar onSearch={(query) => navigate(`/products?search=${encodeURIComponent(query)}`)} />
         <main className="flex-grow flex flex-col items-center justify-center pt-16 text-center px-4">
-          <img src="/placeholder.svg" alt="Empty Cart" className="w-48 h-48 mb-8 text-gray-400" />
+          <div className="w-48 h-48 mb-8 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full">
+            <ShoppingCart size={80} className="text-gray-400" />
+          </div>
           <h1 className="text-3xl font-bold text-foreground mb-4">Your Cart is Empty</h1>
           <p className="text-lg text-muted-foreground mb-8">
             Looks like you haven't added anything to your cart yet.
@@ -89,7 +91,9 @@ const Cart: React.FC = () => {
         <div className="container mx-auto px-4">
           {cart.items.length === 0 && isMobile ? (
             <div className="text-center py-12">
-              <img src="/placeholder.svg" alt="Empty Cart" className="w-36 h-36 mx-auto mb-6 text-gray-400" />
+              <div className="w-36 h-36 mx-auto mb-6 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full">
+                <ShoppingCart size={60} className="text-gray-400" />
+              </div>
               <h1 className="text-2xl font-bold text-foreground mb-3">Your Cart is Empty</h1>
               <p className="text-md text-muted-foreground mb-6">
                 Add some products to get started!
