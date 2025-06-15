@@ -33,22 +33,20 @@ const UserProfile = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex flex-col items-center space-y-1" onClick={handleLogin}>
-        <User size={24} className="text-foreground" />
-        <span className="text-xs font-medium">Profile</span>
-      </div>
+      <Button variant="ghost" size="icon" onClick={handleLogin}>
+        <User size={20} className="text-foreground" />
+      </Button>
     );
   }
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex flex-col items-center space-y-1 cursor-pointer">
-          <User size={24} className="text-foreground" />
-          <span className="text-xs font-medium">Profile</span>
-        </div>
+        <Button variant="ghost" size="icon" className="relative">
+          <User size={20} className="text-foreground" />
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="end" side="top" sideOffset={10}>
+      <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
           {/* Quick Action Boxes */}
           <div className="grid grid-cols-2 gap-3">

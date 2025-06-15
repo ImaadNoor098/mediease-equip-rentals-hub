@@ -9,8 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
-import { User, Bell, Shield, Trash2, HelpCircle } from 'lucide-react';
+import { User, Bell, Shield, Trash2, HelpCircle, Edit3, Package } from 'lucide-react';
 import BackButton from '@/components/BackButton';
+import EditProfileDialog from '@/components/navbar/EditProfileDialog';
+import OrderHistoryDialog from '@/components/navbar/OrderHistoryDialog';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -53,8 +55,33 @@ const Settings: React.FC = () => {
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-6">
             <BackButton />
-            <h1 className="text-3xl font-bold mt-4">Settings</h1>
+            <h1 className="text-3xl font-bold mt-4">Profile</h1>
             <p className="text-muted-foreground">Manage your account and preferences</p>
+          </div>
+
+          {/* Quick Action Boxes */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-lg transition-all cursor-pointer group relative">
+              <EditProfileDialog />
+              <div className="flex flex-col items-center space-y-3 pointer-events-none">
+                <div className="p-4 bg-blue-500 text-white rounded-full group-hover:scale-110 transition-transform">
+                  <Edit3 size={24} />
+                </div>
+                <span className="text-sm font-semibold text-blue-700">Edit Profile</span>
+                <span className="text-xs text-blue-600">Update your details</span>
+              </div>
+            </div>
+            
+            <div className="flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-lg transition-all cursor-pointer group relative">
+              <OrderHistoryDialog />
+              <div className="flex flex-col items-center space-y-3 pointer-events-none">
+                <div className="p-4 bg-green-500 text-white rounded-full group-hover:scale-110 transition-transform">
+                  <Package size={24} />
+                </div>
+                <span className="text-sm font-semibold text-green-700">Order History</span>
+                <span className="text-xs text-green-600">{user?.orderHistory?.length || 0} orders</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-6">
