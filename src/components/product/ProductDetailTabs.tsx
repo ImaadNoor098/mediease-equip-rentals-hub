@@ -1,22 +1,28 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProductDetailTabsProps {
   category?: string;
 }
 
 const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({ category = "Medical Equipment" }) => {
-  return (
-    <div className="mt-12">
-      <Tabs defaultValue="details">
-        <TabsList className="w-full border-b border-gray-200 mb-6">
-          <TabsTrigger value="details" className="text-lg py-3">Details & Specifications</TabsTrigger>
-          <TabsTrigger value="shipping" className="text-lg py-3">Shipping & Returns</TabsTrigger>
-          <TabsTrigger value="care" className="text-lg py-3">Care Instructions</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="details" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+  const isMobile = useIsMobile();
+
+  const tabsData = [
+    {
+      value: "details",
+      label: "Details & Specifications",
+      content: (
+        <div>
           <h3 className="text-xl font-semibold mb-4">Product Details</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -51,9 +57,14 @@ const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({ category = "Medic
               </div>
             </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="shipping" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+        </div>
+      )
+    },
+    {
+      value: "shipping",
+      label: "Shipping & Returns",
+      content: (
+        <div>
           <h3 className="text-xl font-semibold mb-4">Shipping & Returns</h3>
           <div className="space-y-4">
             <div>
@@ -71,9 +82,14 @@ const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({ category = "Medic
               <p className="text-gray-600">For purchased items, we offer a 15-day return policy from the date of delivery. The product must be in its original condition. For rented items, you can cancel the rental agreement within 24 hours of delivery.</p>
             </div>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="care" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+        </div>
+      )
+    },
+    {
+      value: "care",
+      label: "Care Instructions",
+      content: (
+        <div>
           <h3 className="text-xl font-semibold mb-4">Care Instructions</h3>
           <div className="space-y-4">
             <p className="text-gray-600">
@@ -105,6 +121,55 @@ const ProductDetailTabs: React.FC<ProductDetailTabsProps> = ({ category = "Medic
               For specific care instructions related to this product, please refer to the user manual provided or contact our support team.
             </p>
           </div>
+        </div>
+      )
+    }
+  ];
+
+  if (isMobile) {
+    return (
+      <div className="mt-12">
+        <Carousel className="w-full max-w-full">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">Product Information</h2>
+            <div className="flex gap-2">
+              <CarouselPrevious className="static translate-y-0" />
+              <CarouselNext className="static translate-y-0" />
+            </div>
+          </div>
+          <CarouselContent>
+            {tabsData.map((tab) => (
+              <CarouselItem key={tab.value}>
+                <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+                  {tab.content}
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-12">
+      <Tabs defaultValue="details">
+        <TabsList className="w-full border-b border-gray-200 mb-6">
+          <TabsTrigger value="details" className="text-lg py-3">Details & Specifications</TabsTrigger>
+          <TabsTrigger value="shipping" className="text-lg py-3">Shipping & Returns</TabsTrigger>
+          <TabsTrigger value="care" className="text-lg py-3">Care Instructions</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="details" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+          {tabsData[0].content}
+        </TabsContent>
+        
+        <TabsContent value="shipping" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+          {tabsData[1].content}
+        </TabsContent>
+        
+        <TabsContent value="care" className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
+          {tabsData[2].content}
         </TabsContent>
       </Tabs>
     </div>
