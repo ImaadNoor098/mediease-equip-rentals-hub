@@ -13,6 +13,7 @@ import BackButton from '@/components/BackButton';
 import EditProfileDialog from '@/components/navbar/EditProfileDialog';
 import OrderHistoryDialog from '@/components/navbar/OrderHistoryDialog';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import ChangePasswordDialog from '@/components/settings/ChangePasswordDialog';
 
 const Settings: React.FC = () => {
   const navigate = useNavigate();
@@ -110,9 +111,11 @@ const Settings: React.FC = () => {
                     <h3 className="font-medium">Password</h3>
                     <p className="text-sm text-muted-foreground">Change your password</p>
                   </div>
-                  <Button variant="outline" disabled>
-                    Change Password
-                  </Button>
+                  <ChangePasswordDialog>
+                    <Button variant="outline">
+                      Change Password
+                    </Button>
+                  </ChangePasswordDialog>
                 </div>
               </CardContent>
             </Card>

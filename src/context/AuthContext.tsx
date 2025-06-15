@@ -58,6 +58,8 @@ type AuthContextType = {
   addSavedAddress: (address: Omit<SavedAddress, 'id'>) => void;
   deleteSavedAddress: (addressId: string) => void;
   setDefaultAddress: (addressId: string) => void;
+  updateUserPassword: (newPassword: string) => Promise<void>;
+  validateCurrentPassword: (password: string) => Promise<boolean>;
 };
 
 type RegisterData = {
@@ -354,6 +356,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const validateCurrentPassword = async (password: string): Promise<boolean> => {
+    if (!user) return false;
+    
+    const userRecord = registeredUsers.get(user.email);
+    return userRecord?.password === password;
+  };
+
+  const updateUserPassword = async (newPassword: string): Promise<void> => {
+    if (!user) throw new Error('No user logged in');
+
+    // Update password in registered users
+    const userRecord = registeredUsers.get(user.email);
+    if (userRecord) {
+      const newRegisteredUsers = new Map(registeredUsers);
+      newRegisteredUsers.set(user.email, {
+        ...userRecord,
+        password: newPassword
+      });
+      setRegisteredUsers(newRegisteredUsers);
+    }
+  };
+
   const value = {
     user,
     isAuthenticated: !!user,
@@ -367,6 +391,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     addSavedAddress,
     deleteSavedAddress,
     setDefaultAddress,
+    updateUserPassword,
+    validateCurrentPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
