@@ -30,14 +30,14 @@ const PaymentSuccess: React.FC = () => {
     console.log('PaymentSuccess: Cart items:', cart.items);
     console.log('PaymentSuccess: Payment data:', { method, total, savings, paymentId, shippingAddress });
     
-    // Save the order to user's order history - only if we have items or total
-    if ((cart.items.length > 0 || total > 0) && !orderSaved) {
+    // Only save the order if we have actual cart items
+    if (cart.items.length > 0 && !orderSaved) {
       const order = {
         id: paymentId || `order_${Date.now()}`,
         date: new Date().toISOString(),
-        total: total || 0,
+        total: total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         method: method || 'Online Payment',
-        items: cart.items.length > 0 ? cart.items.map(item => ({
+        items: cart.items.map(item => ({
           id: item.id || `item_${Date.now()}_${Math.random()}`,
           name: item.name,
           quantity: item.quantity,
@@ -47,15 +47,7 @@ const PaymentSuccess: React.FC = () => {
           retailPrice: item.retailPrice,
           description: item.description || '',
           category: item.category || 'Medical Equipment'
-        })) : [{
-          id: `test_item_${Date.now()}`,
-          name: 'Test Order Item',
-          quantity: 1,
-          price: total || 0,
-          purchaseType: 'buy' as const,
-          description: 'Test order for payment verification',
-          category: 'Test'
-        }],
+        })),
         shippingAddress: shippingAddress ? {
           fullName: shippingAddress.fullName,
           addressLine1: shippingAddress.addressLine1,
@@ -73,8 +65,10 @@ const PaymentSuccess: React.FC = () => {
       addOrder(order);
       setOrderSaved(true);
       clearCart();
-    } else {
-      console.log('PaymentSuccess: No items in cart and no total amount or order already saved');
+    } else if (cart.items.length === 0) {
+      console.log('PaymentSuccess: No items in cart, not creating order');
+      // If no cart items, still mark as saved to prevent re-processing
+      setOrderSaved(true);
     }
   }, [addOrder, cart.items, total, method, savings, paymentId, shippingAddress, orderSaved, clearCart]);
   
