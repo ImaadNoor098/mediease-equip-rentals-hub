@@ -61,6 +61,8 @@ const Cart: React.FC = () => {
   };
   
   const subtotal = calculateSubtotal();
+  const gst = subtotal * 0.18; // 18% GST
+  const totalWithGST = subtotal + gst;
   const totalSavings = calculateTotalSavings();
 
   if (cart.items.length === 0 && !isMobile) {
@@ -200,6 +202,10 @@ const Cart: React.FC = () => {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-medium text-foreground">₹{subtotal.toFixed(2)}</span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">GST (18%)</span>
+                      <span className="font-medium text-foreground">₹{gst.toFixed(2)}</span>
+                    </div>
                     {totalSavings > 0 && (
                        <div className="flex justify-between text-green-600 dark:text-green-400">
                         <span className="text-sm">Total Savings</span>
@@ -209,7 +215,7 @@ const Cart: React.FC = () => {
                     <div className="h-px bg-border my-3"></div>
                     <div className="flex justify-between">
                       <span className="text-lg font-semibold text-foreground">Total</span>
-                      <span className="text-lg font-semibold text-foreground">₹{subtotal.toFixed(2)}</span>
+                      <span className="text-lg font-semibold text-foreground">₹{totalWithGST.toFixed(2)}</span>
                     </div>
                   </div>
                   <Button 

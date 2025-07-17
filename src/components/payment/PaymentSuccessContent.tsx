@@ -1,14 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/context/CartContext';
 import { AddressFormData } from '@/pages/CheckoutAddress';
 import Confetti from '@/components/Confetti';
 import OrderSummarySection from './OrderSummarySection';
 import AddressDisplaySection from './AddressDisplaySection';
+import OrderReceiptDialog from '@/components/OrderReceiptDialog';
 import { useCountdownTimer } from '@/hooks/useCountdownTimer';
+import { OrderHistoryItem } from '@/types/auth';
 
 interface PaymentSuccessContentProps {
   method: string;
@@ -28,6 +30,7 @@ const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
   const navigate = useNavigate();
   const { cart } = useCart();
   const countdown = useCountdownTimer();
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
 
   // Calculate display values
   const displayTotal = total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -37,6 +40,36 @@ const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
     }
     return sum;
   }, 0);
+
+  // Create order object for receipt
+  const orderForReceipt: OrderHistoryItem = {
+    id: paymentId || `order_${Date.now()}`,
+    date: new Date().toISOString(),
+    total: displayTotal,
+    method: method,
+    items: cart.items.map(item => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price,
+      purchaseType: item.purchaseType,
+      image: item.image,
+      retailPrice: item.retailPrice,
+      description: item.description,
+      category: item.category || 'Medical Equipment'
+    })),
+    shippingAddress: shippingAddress ? {
+      fullName: shippingAddress.fullName,
+      addressLine1: shippingAddress.addressLine1,
+      addressLine2: shippingAddress.addressLine2,
+      city: shippingAddress.city,
+      state: shippingAddress.state,
+      pincode: shippingAddress.pincode,
+      mobileNumber: shippingAddress.mobileNumber
+    } : undefined,
+    savings: displaySavings,
+    status: 'confirmed'
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-mediease-50 px-4">
@@ -57,13 +90,30 @@ const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
 
         <AddressDisplaySection shippingAddress={shippingAddress} />
         
-        <Button 
-          onClick={() => navigate('/')}
-          className="bg-mediease-600 hover:bg-mediease-700 w-full"
-        >
-          Continue Shopping ({countdown})
-        </Button>
+        <div className="flex flex-col gap-3 mb-6">
+          <Button 
+            onClick={() => setShowReceiptDialog(true)}
+            variant="outline"
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download Order Receipt
+          </Button>
+          
+          <Button 
+            onClick={() => navigate('/')}
+            className="bg-mediease-600 hover:bg-mediease-700 w-full"
+          >
+            Continue Shopping ({countdown})
+          </Button>
+        </div>
       </div>
+
+      <OrderReceiptDialog 
+        open={showReceiptDialog}
+        onOpenChange={setShowReceiptDialog}
+        order={orderForReceipt}
+      />
     </div>
   );
 };

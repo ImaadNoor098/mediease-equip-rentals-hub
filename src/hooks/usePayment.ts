@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
@@ -55,7 +56,7 @@ export const usePayment = (shippingAddress?: AddressFormData) => {
   };
   
   const subtotal = calculateSubtotal();
-  const tax = subtotal * 0.18;
+  const tax = subtotal * 0.18; // 18% GST
   const total = subtotal + tax;
   const savings = cart.items.reduce((totalSavings, item) => {
     const retailPrice = item.retailPrice || (item.price / 0.85);

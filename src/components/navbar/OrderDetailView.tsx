@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, MapPin, Package, ShoppingCart, Clock, Calendar } from 'lucide-react';
+import { ArrowLeft, MapPin, Package, ShoppingCart, Clock, Calendar, Download } from 'lucide-react';
 import { OrderHistoryItem } from '@/types/auth';
+import OrderReceiptDialog from '@/components/OrderReceiptDialog';
 
 interface OrderDetailViewProps {
   order: OrderHistoryItem;
@@ -9,6 +10,7 @@ interface OrderDetailViewProps {
 }
 
 const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }) => {
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const totalItems = order.items.reduce((sum, item) => sum + item.quantity, 0);
   
   const formatDateTime = (dateString: string) => {
@@ -35,11 +37,21 @@ const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }
   
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Button variant="ghost" size="sm" onClick={onBackToList}>
-          <ArrowLeft className="h-4 w-4" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={onBackToList}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <h2 className="text-lg font-semibold">Order Details - #{order.id}</h2>
+        </div>
+        <Button 
+          onClick={() => setShowReceiptDialog(true)}
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Download Receipt
         </Button>
-        <h2 className="text-lg font-semibold">Order Details - #{order.id}</h2>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -248,6 +260,12 @@ const OrderDetailView: React.FC<OrderDetailViewProps> = ({ order, onBackToList }
           </div>
         </div>
       </div>
+
+      <OrderReceiptDialog 
+        open={showReceiptDialog}
+        onOpenChange={setShowReceiptDialog}
+        order={order}
+      />
     </div>
   );
 };
