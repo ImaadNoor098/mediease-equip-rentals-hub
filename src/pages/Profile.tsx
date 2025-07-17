@@ -70,7 +70,7 @@ const Profile: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    View and manage your order history
+                    View and manage your order history. You can also print receipts for any past order.
                   </p>
                   <OrderHistoryDialog>
                     <Button className="w-full bg-medieaze-600 hover:bg-medieaze-700">

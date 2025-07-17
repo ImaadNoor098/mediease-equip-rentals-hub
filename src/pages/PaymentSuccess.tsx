@@ -17,7 +17,7 @@ const PaymentSuccess: React.FC = () => {
   };
   
   // Process order creation using the custom hook
-  useOrderProcessing({
+  const { orderProcessed } = useOrderProcessing({
     method,
     total,
     savings,
@@ -32,6 +32,7 @@ const PaymentSuccess: React.FC = () => {
       savings={savings}
       paymentId={paymentId}
       shippingAddress={shippingAddress as AddressFormData | null}
+      orderProcessed={orderProcessed}
     />
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ interface PaymentSuccessContentProps {
   savings: number;
   paymentId: string | null;
   shippingAddress: AddressFormData | null;
+  orderProcessed?: boolean;
 }
 
 const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
@@ -25,12 +26,20 @@ const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
   total,
   savings,
   paymentId,
-  shippingAddress
+  shippingAddress,
+  orderProcessed = false
 }) => {
   const navigate = useNavigate();
   const { cart } = useCart();
   const countdown = useCountdownTimer();
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+
+  // Show receipt dialog automatically after order is processed
+  useEffect(() => {
+    if (orderProcessed) {
+      setShowReceiptDialog(true);
+    }
+  }, [orderProcessed]);
 
   // Calculate display values
   const displayTotal = total || cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -41,7 +50,7 @@ const PaymentSuccessContent: React.FC<PaymentSuccessContentProps> = ({
     return sum;
   }, 0);
 
-  // Create order object for receipt
+  // Create order object for receipt with all required details
   const orderForReceipt: OrderHistoryItem = {
     id: paymentId || `order_${Date.now()}`,
     date: new Date().toISOString(),

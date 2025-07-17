@@ -58,16 +58,20 @@ export const useOrderProcessing = ({
     // Calculate totals if not provided
     const calculatedTotal = orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const calculatedSavings = orderItems.reduce((sum, item) => {
-      if (item.retailPrice && item.retailPrice > item.price) {
+      if (item.retailPrice && item.retailPrice > 0 && item.retailPrice > item.price) {
         return sum + ((item.retailPrice - item.price) * item.quantity);
       }
       return sum;
     }, 0);
 
-    // Create order object with proper structure
+    // Create order object with proper structure including purchase/return dates
+    const orderDate = new Date();
+    const returnDate = new Date();
+    returnDate.setDate(orderDate.getDate() + 30); // 30 days return period
+
     const newOrder: OrderHistoryItem = {
       id: paymentId || `order_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      date: new Date().toISOString(),
+      date: orderDate.toISOString(),
       total: total || calculatedTotal,
       method: method || 'Cash on Delivery',
       items: orderItems,
@@ -86,14 +90,14 @@ export const useOrderProcessing = ({
 
     console.log('useOrderProcessing: Creating order with structure:', newOrder);
 
-    // Mark as processed immediately to prevent duplicates
+    // Mark as processed first to prevent duplicates
     setOrderProcessed(true);
     
     // Save order based on authentication status
     if (isAuthenticated && user) {
       console.log('useOrderProcessing: Saving order for authenticated user');
       addOrder(newOrder);
-      console.log('useOrderProcessing: Order added to user history');
+      console.log('useOrderProcessing: Order added to user history successfully');
     } else {
       console.log('useOrderProcessing: Saving order for guest user');
       try {
@@ -118,7 +122,7 @@ export const useOrderProcessing = ({
     clearCart();
     console.log('useOrderProcessing: Order processing completed, cart cleared');
     
-  }, [cart.items, isAuthenticated, user, orderProcessed]); // Added dependencies to ensure proper re-execution
+  }, [cart.items, isAuthenticated, user?.id, paymentId, orderProcessed, method, total, savings, shippingAddress]);
 
   return { orderProcessed };
 };
