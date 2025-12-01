@@ -15,6 +15,75 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+	  <style>#chat-container {
+  width: 380px;
+  height: 520px;
+  border: 2px solid #333;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  background: #fafafa;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  font-family: Arial, sans-serif;
+}
+
+#chat-box {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+  background: white;
+}
+
+.message.user {
+  text-align: right;
+  background: #007bff;
+  color: white;
+  padding: 8px 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.message.bot {
+  text-align: left;
+  background: #e0e0e0;
+  color: #111;
+  padding: 8px 10px;
+  margin: 5px 0;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+#chat-input-area {
+  display: flex;
+  border-top: 1px solid #ddd;
+  padding: 10px;
+}
+
+#chat-input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+}
+
+#chat-send {
+  margin-left: 10px;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#chat-send:hover {
+  background: #0056d6;
+}
+</style>
   </head>
 
   <body>
@@ -23,6 +92,15 @@
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
       <!-- chatbot -->
+	  <div id="chat-container">
+  <div id="chat-box"></div>
+
+  <div id="chat-input-area">
+    <input id="chat-input" type="text" placeholder="Type your message..." />
+    <button id="chat-send">Send</button>
+  </div>
+</div>
+
    <!-- <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
 <script type="module">
 	import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
@@ -31,5 +109,47 @@
 		webhookUrl: 'https://shamsimaad.app.n8n.cloud/webhook/b978acba-9884-41fa-8793-c1522d4ae37c/chat'
 	});
 </script> -->
+	  <script>
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("chat-input");
+const sendBtn = document.getElementById("chat-send");
+
+function addMessage(text, sender) {
+  let div = document.createElement("div");
+  div.className = "message " + sender;
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  addMessage(msg, "user");
+  input.value = "";
+
+  addMessage("Thinking...", "bot");
+
+  let response = await fetch("http://localhost:8000/chat", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ message: msg })
+  });
+
+  let data = await response.json();
+
+  // remove "Thinking..."
+  chatBox.removeChild(chatBox.lastChild);
+
+  addMessage(data.reply, "bot");
+}
+
+sendBtn.onclick = sendMessage;
+input.addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
+</script>
+
   </body>
 </html>
