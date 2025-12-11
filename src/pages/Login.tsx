@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
@@ -12,10 +11,16 @@ import { toast } from '@/hooks/use-toast';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,23 +36,16 @@ const Login: React.FC = () => {
         });
         navigate('/');
       } else {
-        // Handle different error types
-        if (result.error === 'ACCOUNT_NOT_FOUND') {
-          toast({
-            title: "Account not found",
-            description: "No account found with this email. Please register first.",
-            variant: "destructive",
-          });
-        } else if (result.error === 'WRONG_CREDENTIALS') {
+        if (result.error === 'WRONG_CREDENTIALS') {
           toast({
             title: "Invalid credentials",
-            description: "Wrong email ID or password entered. Please try again.",
+            description: "Wrong email ID or password. Please try again or register if you don't have an account.",
             variant: "destructive",
           });
         } else {
           toast({
             title: "Login failed",
-            description: "An error occurred. Please try again.",
+            description: result.error || "An error occurred. Please try again.",
             variant: "destructive",
           });
         }

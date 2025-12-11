@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
@@ -12,7 +12,7 @@ import { toast } from '@/hooks/use-toast';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -22,6 +22,12 @@ const Register: React.FC = () => {
     confirmPassword: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const passwordRequirements = {
     minLength: formData.password.length >= 8,
@@ -81,7 +87,7 @@ const Register: React.FC = () => {
       } else {
         toast({
           title: "Registration failed",
-          description: "An account with this email already exists. Please try logging in instead.",
+          description: "An account with this email may already exist. Please try logging in instead.",
           variant: "destructive",
         });
       }
@@ -171,31 +177,30 @@ const Register: React.FC = () => {
                     placeholder="Enter your password"
                   />
                   
-                  {/* Password Requirements */}
                   <div className="space-y-2 mt-2">
                     <p className="text-sm font-medium">Password Requirements:</p>
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
                         <Checkbox checked={passwordRequirements.minLength} disabled />
-                        <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`text-xs ${passwordRequirements.minLength ? 'text-green-600' : 'text-muted-foreground'}`}>
                           Minimum 8 characters
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox checked={passwordRequirements.hasUppercase} disabled />
-                        <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`text-xs ${passwordRequirements.hasUppercase ? 'text-green-600' : 'text-muted-foreground'}`}>
                           One uppercase letter
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox checked={passwordRequirements.hasNumber} disabled />
-                        <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`text-xs ${passwordRequirements.hasNumber ? 'text-green-600' : 'text-muted-foreground'}`}>
                           One number
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Checkbox checked={passwordRequirements.hasSpecial} disabled />
-                        <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600' : 'text-gray-500'}`}>
+                        <span className={`text-xs ${passwordRequirements.hasSpecial ? 'text-green-600' : 'text-muted-foreground'}`}>
                           One special character
                         </span>
                       </div>
@@ -215,7 +220,7 @@ const Register: React.FC = () => {
                     placeholder="Confirm your password"
                   />
                   {formData.confirmPassword && !passwordsMatch && (
-                    <p className="text-xs text-red-500">Passwords do not match</p>
+                    <p className="text-xs text-destructive">Passwords do not match</p>
                   )}
                 </div>
 
