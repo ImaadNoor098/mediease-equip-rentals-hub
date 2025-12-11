@@ -14,7 +14,90 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          created_at: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          gst: number
+          id: string
+          items: Json
+          order_number: string
+          payment_method: string | null
+          savings: number | null
+          shipping_address: string | null
+          status: string | null
+          subtotal: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          gst: number
+          id?: string
+          items: Json
+          order_number: string
+          payment_method?: string | null
+          savings?: number | null
+          shipping_address?: string | null
+          status?: string | null
+          subtotal: number
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          gst?: number
+          id?: string
+          items?: Json
+          order_number?: string
+          payment_method?: string | null
+          savings?: number | null
+          shipping_address?: string | null
+          status?: string | null
+          subtotal?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
