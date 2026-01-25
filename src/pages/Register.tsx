@@ -70,7 +70,7 @@ const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await register({
+      const result = await register({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -78,18 +78,32 @@ const Register: React.FC = () => {
         password: formData.password
       });
 
-      if (success) {
+      if (result.success) {
         toast({
           title: "Registration successful",
           description: "Welcome to MediEase!",
         });
         navigate('/');
       } else {
-        toast({
-          title: "Registration failed",
-          description: "An account with this email may already exist. Please try logging in instead.",
-          variant: "destructive",
-        });
+        if (result.error === 'EMAIL_EXISTS') {
+          toast({
+            title: "Email already registered",
+            description: "An account with this email already exists. Please login instead.",
+            variant: "destructive",
+          });
+        } else if (result.error === 'PHONE_EXISTS') {
+          toast({
+            title: "Phone number already registered",
+            description: "An account with this phone number already exists. Please use a different number or login.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Registration failed",
+            description: result.error || "An error occurred. Please try again.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       toast({

@@ -74,56 +74,102 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // First check if email exists in profiles
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', email)
+        .maybeSingle();
 
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        return { success: false, error: 'WRONG_CREDENTIALS' };
+      if (!profile) {
+        return { success: false, error: 'EMAIL_NOT_FOUND' };
       }
-      return { success: false, error: error.message };
-    }
 
-    return { success: true };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          return { success: false, error: 'WRONG_CREDENTIALS' };
+        }
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (err) {
+      console.error('Login error:', err);
+      return { success: false, error: 'An unexpected error occurred' };
+    }
   };
 
-  const register = async (userData: RegisterData): Promise<boolean> => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { data, error } = await supabase.auth.signUp({
-      email: userData.email,
-      password: userData.password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: userData.name,
+  const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
+    try {
+      // Check if email already exists
+      const { data: existingEmail } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('email', userData.email)
+        .maybeSingle();
+
+      if (existingEmail) {
+        return { success: false, error: 'EMAIL_EXISTS' };
+      }
+
+      // Check if phone already exists
+      const { data: existingPhone } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('phone', userData.phone)
+        .maybeSingle();
+
+      if (existingPhone) {
+        return { success: false, error: 'PHONE_EXISTS' };
+      }
+
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: userData.email,
+        password: userData.password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: userData.name,
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Registration error:', error);
+        if (error.message.includes('already registered')) {
+          return { success: false, error: 'EMAIL_EXISTS' };
+        }
+        return { success: false, error: error.message };
+      }
+
+      // Update profile with additional info
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            phone: userData.phone,
+            address: userData.address,
+          })
+          .eq('id', data.user.id);
+
+        if (profileError) {
+          console.error('Profile update error:', profileError);
         }
       }
-    });
 
-    if (error) {
-      console.error('Registration error:', error);
-      return false;
+      return { success: true };
+    } catch (err) {
+      console.error('Registration error:', err);
+      return { success: false, error: 'An unexpected error occurred' };
     }
-
-    // Update profile with additional info
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          phone: userData.phone,
-          address: userData.address,
-        })
-        .eq('id', data.user.id);
-
-      if (profileError) {
-        console.error('Profile update error:', profileError);
-      }
-    }
-
-    return true;
   };
 
   const logout = async () => {

@@ -39,7 +39,13 @@ const Login: React.FC = () => {
         if (result.error === 'WRONG_CREDENTIALS') {
           toast({
             title: "Invalid credentials",
-            description: "Wrong email ID or password. Please try again or register if you don't have an account.",
+            description: "Wrong email or password. Please try again or register if you don't have an account.",
+            variant: "destructive",
+          });
+        } else if (result.error === 'EMAIL_NOT_FOUND') {
+          toast({
+            title: "Email not found",
+            description: "No account exists with this email address. Please register first.",
             variant: "destructive",
           });
         } else {
@@ -84,7 +90,12 @@ const Login: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <Link to="/forgot-password" className="text-xs text-primary hover:underline">
+                      Forgot password?
+                    </Link>
+                  </div>
                   <Input
                     id="password"
                     type="password"
