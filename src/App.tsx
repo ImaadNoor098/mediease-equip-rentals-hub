@@ -18,6 +18,7 @@ import CheckoutAddress from "./pages/CheckoutAddress";
 import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Profile from "./pages/Profile";
+import OrderDetail from "./pages/OrderDetail";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import Settings from "./pages/Settings";
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/order/:orderId" element={<OrderDetail />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/settings" element={<Settings />} />
