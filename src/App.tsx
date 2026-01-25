@@ -19,6 +19,7 @@ import Payment from "./pages/Payment";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import Profile from "./pages/Profile";
 import OrderDetail from "./pages/OrderDetail";
+import ForgotPassword from "./pages/ForgotPassword";
 import AboutUs from "./pages/AboutUs";
 import ContactUs from "./pages/ContactUs";
 import Settings from "./pages/Settings";
@@ -54,6 +55,7 @@ const App = () => (
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/checkout-address" element={<CheckoutAddress />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment-success" element={<PaymentSuccess />} />
