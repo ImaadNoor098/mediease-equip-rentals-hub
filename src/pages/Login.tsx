@@ -39,13 +39,7 @@ const Login: React.FC = () => {
         if (result.error === 'WRONG_CREDENTIALS') {
           toast({
             title: "Invalid credentials",
-            description: "Wrong email or password. Please try again or register if you don't have an account.",
-            variant: "destructive",
-          });
-        } else if (result.error === 'EMAIL_NOT_FOUND') {
-          toast({
-            title: "Email not found",
-            description: "No account exists with this email address. Please register first.",
+            description: "Wrong email or password. Please check your details and try again.",
             variant: "destructive",
           });
         } else {

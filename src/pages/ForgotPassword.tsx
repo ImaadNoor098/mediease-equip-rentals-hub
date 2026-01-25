@@ -38,24 +38,8 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Check if email exists in the system
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (!profile) {
-        toast({
-          title: "Account not found",
-          description: "No account exists with this email address. Please register first.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
       // Send OTP using Supabase's built-in email OTP
+      // shouldCreateUser: false ensures it won't create new accounts
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -64,11 +48,19 @@ const ForgotPassword: React.FC = () => {
       });
 
       if (error) {
-        toast({
-          title: "Failed to send OTP",
-          description: error.message,
-          variant: "destructive",
-        });
+        if (error.message.includes('Signups not allowed') || error.message.includes('not allowed')) {
+          toast({
+            title: "Account not found",
+            description: "No account exists with this email address. Please register first.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Failed to send OTP",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
       } else {
         toast({
           title: "OTP Sent",

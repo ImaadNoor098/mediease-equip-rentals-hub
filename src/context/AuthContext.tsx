@@ -75,17 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // First check if email exists in profiles
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (!profile) {
-        return { success: false, error: 'EMAIL_NOT_FOUND' };
-      }
-
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -107,28 +96,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const register = async (userData: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Check if email already exists
-      const { data: existingEmail } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('email', userData.email)
-        .maybeSingle();
-
-      if (existingEmail) {
-        return { success: false, error: 'EMAIL_EXISTS' };
-      }
-
-      // Check if phone already exists
-      const { data: existingPhone } = await supabase
-        .from('profiles')
-        .select('phone')
-        .eq('phone', userData.phone)
-        .maybeSingle();
-
-      if (existingPhone) {
-        return { success: false, error: 'PHONE_EXISTS' };
-      }
-
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
@@ -138,16 +105,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           emailRedirectTo: redirectUrl,
           data: {
             full_name: userData.name,
+            phone: userData.phone,
+            address: userData.address,
           }
         }
       });
 
       if (error) {
         console.error('Registration error:', error);
-        if (error.message.includes('already registered')) {
+        if (error.message.includes('already registered') || error.message.includes('already been registered')) {
           return { success: false, error: 'EMAIL_EXISTS' };
         }
         return { success: false, error: error.message };
+      }
+
+      // Check if user was created (not just a duplicate signup attempt)
+      if (!data.user) {
+        return { success: false, error: 'Registration failed. Please try again.' };
       }
 
       // Update profile with additional info
